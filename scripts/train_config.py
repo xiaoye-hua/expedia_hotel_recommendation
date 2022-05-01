@@ -4,71 +4,89 @@
 # @Time    : 2021/10/30 下午3:47
 # @Disc    :
 
-from src.FeatureCreator import FeatureCreator
-from src.Pipeline.XGBoostPipeline import XGBoostPipeline
+from src.FeatureCreator.FeatureCreator import FeatureCreator
+# from src.Pipeline.XGBoostPipeline import XGBoostPipeline
+from src.Pipeline.LGBRegPipeline import LGBRegPipeline
 
-debug = True
-debug_num = 1000
+
+debug = False
+debug_num = 1000000
 dir_mark = '0430_lightgbm_v1'
 
-submission_cols =  ['SearchId','PropertyId']
 search_id = 'srch_id'
 prop_id = 'prop_id'
-regression_label = 'label'
 
 # base_dir = '../'
 data_dir = 'raw_data/'
 result_dir = 'result/'
 
-position_feature_path = 'model_finished/offline_features/position_features.csv'
-
 train_config_detail = {
     "0430_lightgbm_v1": {
-        "pipeline_class": XGBoostPipeline
+        "pipeline_class": LGBRegPipeline
         , 'feature_creator': FeatureCreator
         , 'train_valid': True
         , 'sparse_features': [
-
-            # 'has_free_cancellation',
-            #     'can_pay_later',  -> error TypeError: ufunc 'isnan' not supported for the input types, and the inputs could not be safely coerced to any supported types according to the casting rule ''safe''
-
-            # 'month',
-            # 'day_name',
-            'checkin_month',  # try XGB category
-            'checkin_day_name',
-            'domestic',
-            'search_device_type',  # remove null value
-            # 'country_code',
-            # 'search_country_code',
-            'property_type',  # 32 unique value -> can we reduce the # of categories
-            'parent_chain_name',  # 58 unique value
-            'hotel_country_code_whether_us',
-            'search_country_code_whether_us',
-            'hotel_country_code_country_group'
-            , 'search_country_code_country_group'
+            'site_id'
+            , 'visitor_location_country_id'
+            , 'prop_country_id'
+            , 'srch_destination_id'
+            , 'prop_brand_bool'
+            , 'promotion_flag'
+            , 'srch_saturday_night_bool'
+            , 'random_bool'
+            , 'comp1_rate'
+            , 'comp1_inv'
+            , 'comp2_rate'
+            , 'comp2_inv'
+            , 'comp3_rate'
+            , 'comp3_inv'
+            , 'comp4_rate'
+            , 'comp4_inv'
+            , 'comp5_rate'
+            , 'comp5_inv'
+            , 'comp6_rate'
+            , 'comp6_inv'
+            , 'comp7_rate'
+            , 'comp7_inv'
+            , 'comp8_rate'
+            , 'comp8_inv'
+            # new feature
+            , 'day'
+            , 'hour'
+            , 'dayofweek'
+            , 'position'
         ]
         , 'dense_features': [
-            'total_rate_usd',
-            # 'random_data',
-            # 'random_data_2',
-            'day_distance',
-            'length_of_stay',
-            'base_rate_usd',
-            'daily_rate_usd',
-            'top3_min_diff',
-            'top3_max_diff',
-            'bks_diff',
-            'exp_diff',
-            'top3_min_frac',
-            'top3_max_frac',
-            'bks_diff_frac',
-            'exp_diff_frac',
-            # 'cte_diff'
-            # 'eps_diff'
+            'visitor_hist_starrating'
+            , 'visitor_hist_adr_usd'
+            , 'prop_starrating'
+            , 'prop_review_score'
+            , 'prop_location_score1'
+            , 'prop_location_score2'
+            , 'prop_log_historical_price'
+            , 'price_usd'
+            , 'srch_length_of_stay'
+            , 'srch_booking_window'
+            , 'srch_adults_count'
+            , 'srch_children_count'
+            , 'srch_room_count'
+            , 'srch_query_affinity_score'
+            , 'orig_destination_distance'
+            , 'comp1_rate_percent_diff'
+            , 'comp2_rate_percent_diff'
+            , 'comp3_rate_percent_diff'
+            , 'comp4_rate_percent_diff'
+            , 'comp5_rate_percent_diff'
+            , 'comp6_rate_percent_diff'
+            , 'comp7_rate_percent_diff'
+            , 'comp8_rate_percent_diff'
+            # new feature
+               # position feature
+            , 'position_ctr', 'position_ctcvr', 'position_reg_label','position_cnt'
         ]
-        , 'feature_clean_func': clean_feature
-        , 'target_col': 'whether_min'
-        , 'data_dir_mark': 'v1_0422_xgb_clareg'
+        # , 'feature_clean_func': clean_feature
+        # , 'target_col': 'whether_min'
+        # , 'data_dir_mark': 'v1_0422_xgb_clareg'
     },
 }
 #

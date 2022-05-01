@@ -24,3 +24,13 @@ cate_encode_cols = ['P1', 'P2', "P3", 'site_id', 'site_category', 'app_id', 'app
                                  , 'device_model',
                                  "device_id"
                                  ]
+
+
+
+
+regression_label = 'label'
+position_feature_path = 'model_finished/offline_features/position_features.csv'
+
+submission_cols_origin = ['srch_id', 'prop_id']
+
+submission_cols =  ['SearchId','PropertyId']
