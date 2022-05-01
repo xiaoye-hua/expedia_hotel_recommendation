@@ -133,6 +133,4 @@ raw_data/*
 result/*
 model_training/*
 
-
-
 !.gitkeep
