@@ -31,7 +31,7 @@ def count_plot(df: pd.DataFrame, col: str, xytext=(0, 0), show_details=True, reg
         unique_num = len(df[col].unique())
         if unique_num > max_cate:
             print(f"Unique num too huge: {unique_num}; cut to {10} categories")
-            df[col] = pd.cut(df[col], 10)
+            df[col] = pd.qcut(df[col], 10)
         ax = sns.countplot(data=df, x=col)
         if show_details:
             for bar in ax.patches:
@@ -43,11 +43,15 @@ def count_plot(df: pd.DataFrame, col: str, xytext=(0, 0), show_details=True, reg
             target_col = 'mean_'+regression_target
             stats = df.groupby(col).agg({regression_target: [np.mean, np.max, np.min]})[regression_target].reset_index().rename(columns={'mean':target_col})
             ax_twin = ax.twinx()
-            ax_twin = sns.pointplot(x=col, y=target_col, data=stats,
+            # ax_twin = \
+            sns.pointplot(x=col, y=target_col, data=stats,
                           color='black', legend='avg_delivery_time',
                           order=np.sort(df[col].dropna().unique()),
                           linewidth=0.1,
                           )
+        plt.show()
+        plt.figure(figsize=(20, 6))
+        sns.boxplot(x=col, y=target_col, data=df)
         plt.show()
     except:
         return
@@ -64,12 +68,29 @@ def plot_feature_importances(model: XGBModel, feature_cols: List[str], show_feat
     Returns:
 
     """
-    feature_imp = pd.Series(model.feature_importances_, index=feature_cols).sort_values(ascending=False)[:show_feature_num]
+    all_feature_imp = pd.Series(model.feature_importances_, index=feature_cols).sort_values(ascending=False)
+    feature_imp = all_feature_imp[:show_feature_num]
     plt.figure(figsize=figsize)
     sns.barplot(x=feature_imp, y=feature_imp.index)
     plt.title("Feature Importance")
     if fig_dir is not None:
         plt.savefig(os.path.join(fig_dir, 'feature_importance.png'))
+        pd.DataFrame(all_feature_imp).to_csv(os.path.join(fig_dir, 'feature_imp.csv'))
+    else:
+        plt.show()
+
+
+def plot_shap_importance(pipeline, X, fig_dir=None):
+    import shap
+    explainer = shap.Explainer(pipeline['model'])
+    features = pipeline['data_transformer'].transform(X.copy())
+    df = pd.DataFrame(features, columns=X.columns)
+    shap_values = explainer(df)
+    plt.figure(figsize=(10, 20))
+    shap.plots.beeswarm(shap_values, max_display=30)
+    plt.title("Shap Feature Importance")
+    if fig_dir is not None:
+        plt.savefig(os.path.join(fig_dir, 'shap_feature_importance.png'))
     else:
         plt.show()
 

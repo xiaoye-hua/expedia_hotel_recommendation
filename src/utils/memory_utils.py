@@ -11,7 +11,8 @@ logging.getLogger(__name__)
 
 def reduce_mem_usage(df: pd.DataFrame, verbose=True) -> pd.DataFrame:
     """
-    reduce the memory of a df, refer to https://www.kaggle.com/kirshoff/fraud-detection-lightgbm-xgboost?scriptVersionId=74783159&cellId=41
+    reduce the memory of a df,
+    refer to https://www.kaggle.com/kirshoff/fraud-detection-lightgbm-xgboost?scriptVersionId=74783159&cellId=41
     Args:
         df:
         verbose:

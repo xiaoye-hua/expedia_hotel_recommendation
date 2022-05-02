@@ -5,6 +5,7 @@
 # @Disc    :
 
 from src.FeatureCreator.FeatureCreator import FeatureCreator
+from src.FeatureCreator.XGBFeatureCreator import XGBFeatureCreator
 from src.Pipeline.XGBRegressionPipeline import XGBRegressionPipeline
 from src.Pipeline.LGBRegPipeline import LGBRegPipeline
 
@@ -12,10 +13,10 @@ from src.Pipeline.LGBRegPipeline import LGBRegPipeline
 debug = False
 
 if debug:
-    # raw_data_path = 'data/debug'
+    raw_data_path = 'data/debug_data'
     model_dir = 'model_training/debug'
 else:
-    # raw_data_path = 'data/raw_data'
+    raw_data_path = 'data/raw_data'
     model_dir = 'model_training/'
 debug_num = 10000
 dir_mark = '0429_xgb_v1'
@@ -122,7 +123,7 @@ train_config_detail = {
     },
     "0429_xgb_v1": {
         "pipeline_class": XGBRegressionPipeline
-        , 'feature_creator': FeatureCreator
+        , 'feature_creator': XGBFeatureCreator  #FeatureCreator
         , 'train_valid': True
         , 'sparse_features': [
             'site_id'

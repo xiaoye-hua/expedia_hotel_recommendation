@@ -7,16 +7,6 @@ import pandas as pd
 import os
 import logging
 from sklearn.model_selection import train_test_split
-from src.save_submission import save_submission
-
-# from src.FeatureCreator.FeatureCreator import FeatureCreator
-# from src.FeatureCreator.UserFeatureCreator import UserFeatureCreator
-# from src.FeatureCreator.ItemFeatureCreator import ItemFeatureCreator
-# from src.Pipeline.XGBoostPipeline import XGBoostPipeline
-# from src.Pipeline.DNNPipeline import DNNPipeline
-# from scripts.train_config import raw_data_path, debug, debug_data_path
-# from src.config import raw_data_usecols, regression_label
-# from src.tmp import data_preprocess
 from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir
 from src.config import regression_label, submission_cols
 
