@@ -1,0 +1,118 @@
+/Users/mac/opt/miniconda3/envs/expedia_hotel_rec/bin/python /Users/mac/Documents/guohua/ongoing_code_project/expedia_hotel_recommendation/scripts/model_train.py
+/Users/mac/opt/miniconda3/envs/expedia_hotel_rec/lib/python3.8/site-packages/xgboost/compat.py:36: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+  from pandas import MultiIndex, Int64Index
+/Users/mac/Documents/guohua/ongoing_code_project/expedia_hotel_recommendation/src/utils/plot_utils.py:134: FutureWarning: The pandas.datetime class is deprecated and will be removed from pandas in a future version. Import from datetime module instead.
+  def get_optimal_threshold(y: pd.DataFrame, y_score: pd.datetime) -> float:
+Mon, 02 May 2022 07:57:11 model_train.py[line:49] INFO Reading data from data/raw_data/0429_xgb_v1
+Mon, 02 May 2022 07:57:24 model_train.py[line:104] INFO train dim：(7935284, 49); evla dim：(1982246, 49)
+Mon, 02 May 2022 07:57:28 model_train.py[line:129] INFO Model training...
+Eval data from train_params: ..
+Mon, 02 May 2022 07:57:55 XGBRegressionPipeline.py[line:68] INFO Train data shape after data process: (7935284, 47)
+Mon, 02 May 2022 07:57:57 XGBRegressionPipeline.py[line:82] INFO Eval data shape after data process: (1982246, 47)
+[0]	validation_0-mae:0.53579	validation_1-mae:0.53716
+[1]	validation_0-mae:0.47263	validation_1-mae:0.47368
+[2]	validation_0-mae:0.42911	validation_1-mae:0.42827
+[3]	validation_0-mae:0.39593	validation_1-mae:0.39643
+[4]	validation_0-mae:0.37354	validation_1-mae:0.37417
+[5]	validation_0-mae:0.35797	validation_1-mae:0.35868
+[6]	validation_0-mae:0.34705	validation_1-mae:0.34776
+[7]	validation_0-mae:0.33938	validation_1-mae:0.34016
+[8]	validation_0-mae:0.33393	validation_1-mae:0.33479
+[9]	validation_0-mae:0.32996	validation_1-mae:0.33088
+[10]	validation_0-mae:0.32738	validation_1-mae:0.32826
+[11]	validation_0-mae:0.32545	validation_1-mae:0.32628
+[12]	validation_0-mae:0.32396	validation_1-mae:0.32483
+[13]	validation_0-mae:0.32303	validation_1-mae:0.32392
+[14]	validation_0-mae:0.32231	validation_1-mae:0.32322
+[15]	validation_0-mae:0.32179	validation_1-mae:0.32268
+[16]	validation_0-mae:0.32144	validation_1-mae:0.32232
+[17]	validation_0-mae:0.32112	validation_1-mae:0.32201
+[18]	validation_0-mae:0.32088	validation_1-mae:0.32178
+[19]	validation_0-mae:0.32070	validation_1-mae:0.32160
+[20]	validation_0-mae:0.32058	validation_1-mae:0.32149
+[21]	validation_0-mae:0.32043	validation_1-mae:0.32137
+[22]	validation_0-mae:0.32032	validation_1-mae:0.32126
+[23]	validation_0-mae:0.32023	validation_1-mae:0.32117
+[24]	validation_0-mae:0.32014	validation_1-mae:0.32108
+[25]	validation_0-mae:0.32005	validation_1-mae:0.32099
+[26]	validation_0-mae:0.32001	validation_1-mae:0.32096
+[27]	validation_0-mae:0.31996	validation_1-mae:0.32093
+[28]	validation_0-mae:0.31990	validation_1-mae:0.32086
+[29]	validation_0-mae:0.31985	validation_1-mae:0.32083
+[30]	validation_0-mae:0.31981	validation_1-mae:0.32080
+[31]	validation_0-mae:0.31978	validation_1-mae:0.32079
+[32]	validation_0-mae:0.31976	validation_1-mae:0.32079
+[33]	validation_0-mae:0.31974	validation_1-mae:0.32079
+[34]	validation_0-mae:0.31968	validation_1-mae:0.32072
+[35]	validation_0-mae:0.31966	validation_1-mae:0.32070
+[36]	validation_0-mae:0.31964	validation_1-mae:0.32068
+[37]	validation_0-mae:0.31959	validation_1-mae:0.32063
+[38]	validation_0-mae:0.31956	validation_1-mae:0.32061
+[39]	validation_0-mae:0.31955	validation_1-mae:0.32061
+[40]	validation_0-mae:0.31954	validation_1-mae:0.32060
+[41]	validation_0-mae:0.31952	validation_1-mae:0.32059
+[42]	validation_0-mae:0.31950	validation_1-mae:0.32058
+[43]	validation_0-mae:0.31947	validation_1-mae:0.32055
+[44]	validation_0-mae:0.31941	validation_1-mae:0.32050
+[45]	validation_0-mae:0.31938	validation_1-mae:0.32048
+[46]	validation_0-mae:0.31937	validation_1-mae:0.32046
+[47]	validation_0-mae:0.31934	validation_1-mae:0.32045
+[48]	validation_0-mae:0.31929	validation_1-mae:0.32040
+[49]	validation_0-mae:0.31925	validation_1-mae:0.32038
+[50]	validation_0-mae:0.31923	validation_1-mae:0.32038
+[51]	validation_0-mae:0.31922	validation_1-mae:0.32038
+[52]	validation_0-mae:0.31921	validation_1-mae:0.32037
+[53]	validation_0-mae:0.31920	validation_1-mae:0.32038
+[54]	validation_0-mae:0.31919	validation_1-mae:0.32037
+[55]	validation_0-mae:0.31917	validation_1-mae:0.32035
+[56]	validation_0-mae:0.31916	validation_1-mae:0.32034
+[57]	validation_0-mae:0.31914	validation_1-mae:0.32033
+[58]	validation_0-mae:0.31912	validation_1-mae:0.32032
+[59]	validation_0-mae:0.31910	validation_1-mae:0.32030
+[60]	validation_0-mae:0.31907	validation_1-mae:0.32028
+[61]	validation_0-mae:0.31906	validation_1-mae:0.32027
+[62]	validation_0-mae:0.31906	validation_1-mae:0.32027
+[63]	validation_0-mae:0.31905	validation_1-mae:0.32027
+[64]	validation_0-mae:0.31902	validation_1-mae:0.32025
+[65]	validation_0-mae:0.31901	validation_1-mae:0.32025
+[66]	validation_0-mae:0.31901	validation_1-mae:0.32025
+[67]	validation_0-mae:0.31897	validation_1-mae:0.32018
+[68]	validation_0-mae:0.31895	validation_1-mae:0.32017
+[69]	validation_0-mae:0.31894	validation_1-mae:0.32017
+[70]	validation_0-mae:0.31893	validation_1-mae:0.32016
+[71]	validation_0-mae:0.31889	validation_1-mae:0.32012
+[72]	validation_0-mae:0.31889	validation_1-mae:0.32013
+[73]	validation_0-mae:0.31886	validation_1-mae:0.32012
+[74]	validation_0-mae:0.31883	validation_1-mae:0.32010
+[75]	validation_0-mae:0.31883	validation_1-mae:0.32010
+[76]	validation_0-mae:0.31881	validation_1-mae:0.32010
+[77]	validation_0-mae:0.31881	validation_1-mae:0.32010
+[78]	validation_0-mae:0.31878	validation_1-mae:0.32009
+[79]	validation_0-mae:0.31877	validation_1-mae:0.32009
+[80]	validation_0-mae:0.31875	validation_1-mae:0.32008
+[81]	validation_0-mae:0.31874	validation_1-mae:0.32008
+[82]	validation_0-mae:0.31873	validation_1-mae:0.32007
+[83]	validation_0-mae:0.31871	validation_1-mae:0.32007
+[84]	validation_0-mae:0.31868	validation_1-mae:0.32005
+[85]	validation_0-mae:0.31866	validation_1-mae:0.32003
+[86]	validation_0-mae:0.31865	validation_1-mae:0.32002
+[87]	validation_0-mae:0.31864	validation_1-mae:0.32003
+[88]	validation_0-mae:0.31863	validation_1-mae:0.32004
+[89]	validation_0-mae:0.31860	validation_1-mae:0.32003
+[90]	validation_0-mae:0.31858	validation_1-mae:0.32002
+[91]	validation_0-mae:0.31856	validation_1-mae:0.32000
+[92]	validation_0-mae:0.31854	validation_1-mae:0.31999
+[93]	validation_0-mae:0.31854	validation_1-mae:0.32000
+[94]	validation_0-mae:0.31853	validation_1-mae:0.32000
+[95]	validation_0-mae:0.31852	validation_1-mae:0.31999
+[96]	validation_0-mae:0.31851	validation_1-mae:0.32000
+[97]	validation_0-mae:0.31850	validation_1-mae:0.32000
+[98]	validation_0-mae:0.31846	validation_1-mae:0.31998
+[99]	validation_0-mae:0.31843	validation_1-mae:0.31995
+Model params are {'objective': 'reg:squarederror', 'base_score': 0.5, 'booster': 'gbtree', 'colsample_bylevel': 1, 'colsample_bynode': 1, 'colsample_bytree': 1, 'enable_categorical': False, 'gamma': 0, 'gpu_id': -1, 'importance_type': None, 'interaction_constraints': '', 'learning_rate': 0.300000012, 'max_delta_step': 0, 'max_depth': 6, 'min_child_weight': 1, 'missing': nan, 'monotone_constraints': '()', 'n_estimators': 100, 'n_jobs': 4, 'num_parallel_tree': 1, 'predictor': 'auto', 'random_state': 0, 'reg_alpha': 0, 'reg_lambda': 1, 'scale_pos_weight': 1, 'subsample': 1, 'tree_method': 'approx', 'validate_parameters': 1, 'verbosity': None}
+Mon, 02 May 2022 08:20:23 XGBRegressionPipeline.py[line:128] INFO Saving eval result to model_training/0429_xgb_v1/eval_test/eval_data
+Mon, 02 May 2022 08:20:27 XGBRegressionPipeline.py[line:150] INFO Model eval result saved in model_training/0429_xgb_v1/eval_test/eval_data
+Mon, 02 May 2022 08:20:27 model_train.py[line:137] INFO Model testing...
+Mon, 02 May 2022 08:20:27 model_train.py[line:140] INFO Model saving to model_training/0429_xgb_v1..
+
+Process finished with exit code 0

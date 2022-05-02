@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # @File    : FeatureCreator.py
 # @Author  : Hua Guo
-# @Time    : 2021/10/30 上午10:36
 # @Disc    :
 import pandas as pd
 from typing import Tuple, List
@@ -119,7 +118,7 @@ class XGBFeatureCreator(BaseFeatureCreator):
         del df
         assert task in ['train_eval', 'inference']
         if task == 'inference':
-            self.feature_data[self.positon_col] = 1
+            self.feature_data[self.position_col] = 1
         if task == 'train_eval':
             self._get_target_variable()
         funcs = [

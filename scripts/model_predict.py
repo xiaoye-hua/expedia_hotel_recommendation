@@ -49,7 +49,7 @@ del test_df
 
 logging.info(f"test dim: {test.shape}")
 
-logging.info(f"Model training...")
+logging.info(f"Model predicting...")
 pipeline = pipeline_class(model_path=model_path, model_training=False, model_params=model_params)
 
 test['predicted'] = pipeline.predict(test[feature_cols])

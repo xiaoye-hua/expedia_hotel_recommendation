@@ -133,5 +133,7 @@ raw_data/*
 result/*
 model_training/*
 data/*
+logs/*
 
 !.gitkeep
+.DS_Store

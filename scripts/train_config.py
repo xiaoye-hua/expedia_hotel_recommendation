@@ -11,6 +11,7 @@ from src.Pipeline.LGBRegPipeline import LGBRegPipeline
 
 
 debug = False
+no_test = True
 
 if debug:
     raw_data_path = 'data/debug_data'
@@ -123,7 +124,8 @@ train_config_detail = {
     },
     "0429_xgb_v1": {
         "pipeline_class": XGBRegressionPipeline
-        , 'feature_creator': XGBFeatureCreator  #FeatureCreator
+        , 'feature_creator': XGBFeatureCreator  #
+        # , 'feature_creator': FeatureCreator
         , 'train_valid': True
         , 'sparse_features': [
             'site_id'

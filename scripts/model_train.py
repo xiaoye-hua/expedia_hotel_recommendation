@@ -7,8 +7,9 @@ import pandas as pd
 import os
 import logging
 from sklearn.model_selection import train_test_split
-from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir
+from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir, raw_data_path
 from src.config import regression_label, submission_cols
+from scripts.train_config import no_test
 
 # =============== Config ============
 logging.basicConfig(level='INFO',
@@ -37,19 +38,28 @@ additional_train_params = train_config_detail[dir_mark].get('additional_train_pa
 # target_col = train_config_detail[dir_mark].get('target_col', reg_target_col)
 # feature_used = dense_features + sparse_features
 # # assert feature_used is not None
-# if not train_config_detail[dir_mark].get('data_dir_mark', False):
-#     target_raw_data_dir = os.path.join(raw_data_path, dir_mark)
-# else:
-#     target_raw_data_dir = os.path.join(raw_data_path, train_config_detail[dir_mark].get('data_dir_mark', False))
+if not train_config_detail[dir_mark].get('data_dir_mark', False):
+    target_raw_data_dir = os.path.join(raw_data_path, dir_mark)
+else:
+    target_raw_data_dir = os.path.join(raw_data_path, train_config_detail[dir_mark].get('data_dir_mark', False))
 # logging.info(f"Reading data from {target_raw_data_dir}")
 # train_df = pd.read_csv(os.path.join(target_raw_data_dir, 'train.csv'))
 # eval_df = pd.read_csv(os.path.join(target_raw_data_dir, 'eval.csv'))
 # test_df = pd.read_csv(os.path.join(target_raw_data_dir, 'test.csv'))
-logging.info(f"Reading data from {data_dir}")
-if debug:
-    train_eval_df = pd.read_csv(os.path.join(data_dir, 'train.csv'), nrows=debug_num)
+logging.info(f"Reading data from {target_raw_data_dir}")
+
+train_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'train_df.pkl'))
+eval_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'eval_df.pkl'))
+test_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'test_df.pkl'))
+
+
+if no_test:
+    train_df = pd.concat([train_df, eval_df], axis=0)
+    eval_df = test_df
+    del test_df
+    df_for_encode_train = pd.concat([train_df, eval_df], axis=0)
 else:
-    train_eval_df = pd.read_csv(os.path.join(data_dir, 'train.csv'))
+    df_for_encode_train = pd.concat([train_df, eval_df, test_df], axis=0)
 # ===================================
 
 #
@@ -73,24 +83,36 @@ else:
 # item_fc = ItemFeatureCreator(df=train_df, feature_path=model_path)
 # item_features, item_feature_cols, channel_features = item_fc.get_features()
 # item_fc.save_features()
-logging.info(f"    All Features...")
-fc = feature_creator_class(feature_cols=dense_features+sparse_features)
+# logging.info(f"    All Features...")
+# fc = feature_creator_class(feature_cols=dense_features+sparse_features)
 
-train_eval, feature_cols = fc.get_features(df=train_eval_df)
+# train, train_feature = fc.get_features(df=train_df)
+# eval, eval_feature = fc.get_features(df=eval_df)
 
-del train_eval_df
+# assert train_feature == eval_feature
+# if not no_test:
+#     test, test_feature = fc.get_features(df=test_df)
+#     assert train_feature == test_feature
+#     del test_df
+#
+# del train_df
+# del eval_df
 
-logging.info(f"train evla dim：{train_eval.shape};")
+feature_cols = dense_features + sparse_features
 
+if no_test:
+    logging.info(f"train dim：{train_df.shape}; evla dim：{eval_df.shape}")
+else:
+    logging.info(f"train dim：{train_df.shape}; evla dim：{eval_df.shape}; Test data shape : {test_df.shape}")
 
-train, eval = train_test_split(train_eval, test_size=0.1)
 train_params = {
     # 'df_for_encode_train': raw_df
     'train_valid': train_valid
-    , "df_for_encode_train": train_eval[feature_cols].copy()
+    , "df_for_encode_train": df_for_encode_train[feature_cols].copy()
     , 'category_features': sparse_features
+    , 'eval_X': eval_df[feature_cols].copy()
+    , 'eval_y': eval_df[regression_label].copy()
 }
-del train_eval
 
 
 # Dnn
@@ -107,14 +129,14 @@ del train_eval
 logging.info(f"Model training...")
 pipeline = pipeline_class(model_path=model_path, model_training=True, model_params=model_params)
 # logging.info(f"Train data shape : {train_features.shape}")
-pipeline.train(X=train[feature_cols], y=train[regression_label], train_params=train_params)
+pipeline.train(X=train_df[feature_cols], y=train_df[regression_label], train_params=train_params)
 # logging.info(f"Test feature creating..")
 # test_features, feature_cols = fc.get_features(df=test_df)
 # test_features = test_features.merge(label, how='left', left_index=True, right_index=True)
 #
-logging.info(f"Model testing...")
-logging.info(f"Test data shape : {eval.shape}")
-pipeline.eval(X=eval[feature_cols], y=eval[regression_label])
+if not no_test:
+    logging.info(f"Model testing...")
+    pipeline.eval(X=test_df[feature_cols], y=test_df[regression_label])
 logging.info(f"Model saving to {model_path}..")
 pipeline.save_pipeline()
 
