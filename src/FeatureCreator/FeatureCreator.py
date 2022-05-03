@@ -142,4 +142,4 @@ class FeatureCreator(BaseFeatureCreator):
         else:
             self.feature_data = self.feature_data.rename(columns=dict(zip(submission_cols_origin, submission_cols)))
             final_cols = list(self.feature_cols) + submission_cols
-        return self.feature_data[final_cols], list(self.feature_cols)
+        return self.feature_data[final_cols] , list(self.feature_cols)

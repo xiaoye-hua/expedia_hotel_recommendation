@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir, raw_data_path
 from src.config import regression_label, submission_cols
 from scripts.train_config import no_test
+from src.Evaluation import get_ndcg
 
 # =============== Config ============
 logging.basicConfig(level='INFO',
@@ -26,6 +27,7 @@ model_params = train_config_detail[dir_mark].get('model_params', {})
 train_valid = train_config_detail[dir_mark].get('train_valid', False)
 dense_features = train_config_detail[dir_mark].get('dense_features', None)
 sparse_features = train_config_detail[dir_mark].get('sparse_features', None)
+feature_cols = dense_features + sparse_features
 feature_clean_func = train_config_detail[dir_mark].get('feature_clean_func', None)
 
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
@@ -97,9 +99,6 @@ else:
 #
 # del train_df
 # del eval_df
-
-feature_cols = dense_features + sparse_features
-
 if no_test:
     logging.info(f"train dim：{train_df.shape}; evla dim：{eval_df.shape}")
 else:
@@ -109,7 +108,7 @@ train_params = {
     # 'df_for_encode_train': raw_df
     'train_valid': train_valid
     , "df_for_encode_train": df_for_encode_train[feature_cols].copy()
-    , 'category_features': sparse_features
+    , 'category_features': [] #sparse_features
     , 'eval_X': eval_df[feature_cols].copy()
     , 'eval_y': eval_df[regression_label].copy()
 }
@@ -140,4 +139,13 @@ if not no_test:
 logging.info(f"Model saving to {model_path}..")
 pipeline.save_pipeline()
 
+eval_df['predicted'] = pipeline.predict(eval_df[feature_cols])
+train_df['predicted'] = pipeline.predict(train_df[feature_cols])
+test_df['predicted'] = pipeline.predict(test_df[feature_cols])
+
+train_ndcg = get_ndcg(train_df)
+eval_ndcg = get_ndcg(eval_df)
+test_ndcg = get_ndcg(test_df)
+print(f"{train_df.shape}; {eval_df.shape}; {test_df.shape}")
+print(f"{train_ndcg}; {eval_ndcg}; {test_ndcg}")
 
