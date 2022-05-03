@@ -4,6 +4,7 @@
 # @Time    : 2021/10/30 下午3:47
 # @Disc    :
 import pandas as pd
+import numpy as np
 import os
 import logging
 from sklearn.model_selection import train_test_split
@@ -35,6 +36,7 @@ additional_train_params = train_config_detail[dir_mark].get('additional_train_pa
 model_path = os.path.join(model_dir, dir_mark)
 
 
+
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
 # target_col = train_config_detail[dir_mark].get('target_col', reg_target_col)
@@ -53,6 +55,8 @@ logging.info(f"Reading data from {target_raw_data_dir}")
 train_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'train_df.pkl'))
 eval_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'eval_df.pkl'))
 test_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'test_df.pkl'))
+
+
 
 
 if no_test:
@@ -104,6 +108,13 @@ if no_test:
 else:
     logging.info(f"train dim：{train_df.shape}; evla dim：{eval_df.shape}; Test data shape : {test_df.shape}")
 
+logging.info('Sort train_df, eval_df with search_id)')
+train_df = train_df.sort_values('srch_id')
+eval_df = eval_df.sort_values('srch_id')
+
+train_group = train_df.groupby('srch_id')['srch_id'].count().values.tolist()
+eval_group = eval_df.groupby('srch_id')['srch_id'].count().values.tolist()
+
 train_params = {
     # 'df_for_encode_train': raw_df
     'train_valid': train_valid
@@ -111,6 +122,8 @@ train_params = {
     , 'category_features': [] #sparse_features
     , 'eval_X': eval_df[feature_cols].copy()
     , 'eval_y': eval_df[regression_label].copy()
+    , 'train_group':train_group
+    , 'eval_group': eval_group
 }
 
 
