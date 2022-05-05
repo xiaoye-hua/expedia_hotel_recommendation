@@ -3,37 +3,38 @@
 # @Author  : Hua Guo
 # @Disc    :
 import pandas as pd
+import numpy as np
 from typing import Tuple, List
 
 from src.FeatureCreator import BaseFeatureCreator
 from src.config import regression_label, position_feature_path
 from src.FeatureCreator.utils import get_label
-from src.config import submission_cols, submission_cols_origin
+from src.config import submission_cols, submission_cols_origin, prop_id, search_id
 
 
-class XGBFeatureCreator(BaseFeatureCreator):
-    def __init__(self,  user_feature_cols_tuple=None, item_feature_cols_tuple=None, feature_cols=[]):
+class FeatureCreatorV3(BaseFeatureCreator):
+    def __init__(self, user_feature_class=None, item_feature_class=None, feature_cols=[]):
         self.feature_cols = set(feature_cols)
-        self.user_feature_cols_tuple = user_feature_cols_tuple
-        self.item_feature_cols_tuple = item_feature_cols_tuple
+        self.user_feature_creator = user_feature_class
+        self.item_feature_creator = item_feature_class
+        if user_feature_class is not None:
+            self.user_feature_creator = user_feature_class()
+            self.user_feature_creator.get_features()
+        if item_feature_class is not None:
+            self.item_feature_creator = item_feature_class()
+            self.item_feature_creator.get_features()
         self.position_col = 'position'
 
+    def _get_date_info(self) -> None:
+        assert self.feature_data is not None
+        self.feature_data['date_time'] = pd.to_datetime(self.feature_data['date_time'])
+        # self.feature_data['year'] = self.feature_data['date_time'].dt.year
+        self.feature_data['month'] = self.feature_data['date_time'].dt.month
+        self.feature_data['hour'] = self.feature_data['date_time'].dt.hour
+        self.feature_data['dayofweek'] = self.feature_data['date_time'].dt.dayofweek
+        self.feature_cols.update(['month', 'hour', 'dayofweek'])
+        # self.feature_data['day_from_0'] = (self.feature_data['date_time'] - pd.to_datetime(min_date)).dt.days
 
-    # def _get_date_info(self) -> None:
-    #     assert self.feature_data is not None
-    #     # self.feature_data['date'] = pd.to_datetime(self.feature_data['timestamp'], format='%y%m%d%H')
-    #     # self.feature_data['year'] = self.feature_data['date'].dt.year
-    #     # self.feature_data['day'] = self.feature_data['date'].dt.day
-    #     # self.feature_data['hour'] = self.feature_data['date'].dt.hour
-    #
-    #     self.feature_data['date_time'] = pd.to_datetime(self.feature_data['date_time'])
-    #     # self.feature_data['year'] = self.feature_data['date_time'].dt.year
-    #     self.feature_data['day'] = self.feature_data['date_time'].dt.day
-    #     self.feature_data['hour'] = self.feature_data['date_time'].dt.hour
-    #     self.feature_data['dayofweek'] = self.feature_data['date_time'].dt.dayofweek
-    #     self.feature_cols.update(['day', 'hour', 'dayofweek'])
-    #     # self.feature_data['day_from_0'] = (self.feature_data['date_time'] - pd.to_datetime(min_date)).dt.days
-    #
     #
     # def _get_position_ctr(self):
     #     # if self.item_feature_cols_tuple is not None:
@@ -107,6 +108,27 @@ class XGBFeatureCreator(BaseFeatureCreator):
     #     for col in cols:
     #         self.feature_data[col] = self.feature_data[col].map(map_dict)
 
+    def _get_item_features(self):
+        if self.item_feature_creator is not None:
+            self.feature_data = self.feature_data.merge(self.item_feature_creator.item_feature, how='left', on=prop_id)
+
+    def _get_listwise_features(self):
+        self.feature_data['price_usd_rank'] = self.feature_data.groupby(search_id)['price_usd'].rank(method='dense', ascending=True)
+        self.price_info = self.feature_data.groupby(search_id).agg({'price_usd': [np.max, np.min]})['price_usd'].reset_index().rename(columns={'amin':'price_min', 'amax': 'price_max'})
+        self.price_rank_info = self.feature_data.groupby(search_id).agg({'price_usd_rank': [np.max, np.min]})['price_usd_rank'].reset_index().rename(columns={'amin':'price_rank_min', 'amax': 'price_rank_max'})
+        self.price_info['price_diff'] = self.price_info['price_max'] -self.price_info['price_min']
+        self.price_rank_info['price_rank_diff'] = self.price_rank_info['price_rank_max'] -self.price_rank_info['price_rank_min']
+        def change_0(row, col):
+            if row[col] == 0:
+                return 1
+            return row[col]
+        self.price_info['price_diff'] = self.price_info.apply(lambda row: change_0(row, 'price_diff'), axis=1)
+        self.price_rank_info['price_rank_diff'] = self.price_rank_info.apply(lambda row: change_0(row, 'price_rank_diff'), axis=1)
+        self.feature_data = self.feature_data.merge(self.price_info, how='left', on=search_id)
+        self.feature_data = self.feature_data.merge(self.price_rank_info, how='left', on=search_id)
+        self.feature_data['price_percentile'] = (self.feature_data['price_usd']-self.feature_data['price_min'])/self.feature_data['price_diff']
+        self.feature_data['price_rank_percentile'] = (self.feature_data['price_usd_rank']-self.feature_data['price_rank_min'])/self.feature_data['price_rank_diff']
+
     def get_features(self, df: pd.DataFrame, task='train_eval') -> Tuple[pd.DataFrame, List[str]]:
         """
 
@@ -126,6 +148,9 @@ class XGBFeatureCreator(BaseFeatureCreator):
             # self._get_date_info
             # , self._get_position_ctr
             # self._map_minus_1
+            self._get_item_features
+            , self._get_date_info
+            , self._get_listwise_features
         ]
         for func in funcs:
             func()
@@ -139,4 +164,4 @@ class XGBFeatureCreator(BaseFeatureCreator):
         else:
             self.feature_data = self.feature_data.rename(columns=dict(zip(submission_cols_origin, submission_cols)))
             final_cols = list(self.feature_cols) + submission_cols
-        return self.feature_data[final_cols], list(self.feature_cols)
+        return self.feature_data, list(self.feature_cols)

@@ -7,29 +7,36 @@ import pandas as pd
 from typing import Tuple, List, Optional, Union
 import numpy as np
 import os
+from src.config import search_id, prop_id, original_dense_features
 
 from src.FeatureCreator import BaseFeatureCreator
-from src.config import item_feature_file, item_feature_prefix, channel_feature_file, item_col
+from src.config import item_feature_file, item_feature_prefix, listwise_feature_prefix, listwise_feature_file, offline_feature_path
 
 
 class ItemFeatureCreator(BaseFeatureCreator):
-    def __init__(self, df: Union[pd.DataFrame, None], feature_path:str) -> None:
+    def __init__(self, train_df=None, test_df=None, feature_path=offline_feature_path) -> None:
         super(ItemFeatureCreator, self).__init__()
         self._check_dir(feature_path)
         self.feature_dir = feature_path
-        self.feature_path = os.path.join(self.feature_dir, item_feature_file)
-        self.item_col = item_col
-        self.feature_cols = []
-        self.target_col = 'is_clicked'
-        self.item_feature = None
-        self.col_prefix = item_feature_prefix
-        if df is None:
-            self.df = None
-            self.channel_ctr = None
+        self.item_feature_path = os.path.join(self.feature_dir, item_feature_file)
+        self.listwise_feature_path = os.path.join(self.feature_dir, listwise_feature_file)
+
+        # self.item_col = item_col
+        # self.feature_cols = []
+        # self.target_col = 'is_clicked'
+        # self.item_feature = None
+        # self.col_prefix = item_feature_prefix
+
+        if train_df is None:
+            self.train_test = None
+            self.listwise_features = None
+            self.item_features = None
         else:
-            self.df = df
-            self._get_channel_feature()
-            self.df = self.df.merge(self.channel_ctr, how='left', on='channel')
+            self.train_test = pd.concat([train_df[test_df.columns], test_df], axis=0)
+            self.train = train_df
+            self.test = test_df
+            # self._get_channel_feature()
+            # self.df = self.df.merge(self.channel_ctr, how='left', on='channel')
 
     def _get_channel_feature(self):
         self.channel_ctr = self.df.groupby(['channel'])[self.target_col].mean().reset_index().rename(
@@ -71,25 +78,36 @@ class ItemFeatureCreator(BaseFeatureCreator):
         self.feature_cols.extend(targer_cols)
         self._merge_feature_df(feature_df=feature_df)
 
-    def get_features(self, **kwargs) -> Tuple[pd.DataFrame, List[str], pd.DataFrame]:
-        if self.df is None:
-            self.item_feature = pd.read_csv(self.feature_path)
-            self.channel_ctr = pd.read_csv(os.path.join(self.feature_dir, channel_feature_file))
-            self.feature_cols = list(self.item_feature.columns)
-            self.feature_cols.remove(self.item_col)
+    # def _get_listwise_feature(self):
+    #     self.df.groupby()
+    def _get_item_statistic_features(self):
+        self.item_feature = self.train_test.groupby(prop_id).size().reset_index().rename(columns={0: 'prop_size'})
+        func_lst = [np.mean, np.std, np.median]
+        stats_cols = ['mean', 'std', 'median']
+        assert len(stats_cols) == len(func_lst)
+        for col in original_dense_features:
+            target_cols = [col+'_'+fun for fun in stats_cols]
+            self.sample_df = self.train_test.groupby(prop_id).agg({col: func_lst})[col].reset_index()\
+                .rename(columns=dict(zip(stats_cols, target_cols)))
+            self.item_feature = self.item_feature.merge(self.sample_df, how='left', left_on=prop_id, right_on=prop_id)
+
+    def get_features(self, **kwargs) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        if self.train_test is None:
+            self.item_feature = pd.read_csv(self.item_feature_path)
         else:
-            self.item_feature = self.df[[self.item_col]].drop_duplicates()
+            # self.item_feature = self.df[[self.item_col]].drop_duplicates()
             funcs = [
-                self._get_exposure_click_ctr_with_position_bias
-                , self._get_ctr_without_position_bias
+                self._get_item_statistic_features
+                # , self._get_item_target_features
+                # , self._get_listwise_feature
             ]
             for func in funcs:
                 func()
-        return self.item_feature, self.feature_cols, self.channel_ctr
+        return self.item_feature
 
     def save_features(self):
-        self.channel_ctr.to_csv(os.path.join(self.feature_dir, channel_feature_file), index=False)
-        self.item_feature.to_csv(self.feature_path, index=False)
+        print(f"Item features saving to {self.item_feature_path}")
+        self.item_feature.to_csv(self.item_feature_path, index=False)
 
     def _merge_feature_df(self, feature_df: pd.DataFrame) -> None:
         self.item_feature = self.item_feature.merge(feature_df, how='left', on=self.item_col)

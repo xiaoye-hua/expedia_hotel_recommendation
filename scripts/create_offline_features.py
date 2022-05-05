@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 # @File    : model_train.py
 # @Author  : Hua Guo
-# @Time    : 2021/10/30 下午3:47
 # @Disc    :
 import pandas as pd
 import os
 import logging
+from tqdm import tqdm
 from sklearn.model_selection import train_test_split
-from src.save_submission import save_submission
+from scripts.train_config import raw_data_path
 from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir
-from src.config import regression_label, submission_cols
+from src.config import regression_label, submission_cols, offline_feature_path
+from src.utils.memory_utils import reduce_mem_usage
+from src.utils import check_create_dir
+from src.FeatureCreator.ItemFeatureCreator import ItemFeatureCreator
 
 # =============== Config ============
 logging.basicConfig(level='INFO',
@@ -26,45 +29,34 @@ model_params = train_config_detail[dir_mark].get('model_params', {})
 train_valid = train_config_detail[dir_mark].get('train_valid', False)
 dense_features = train_config_detail[dir_mark].get('dense_features', None)
 sparse_features = train_config_detail[dir_mark].get('sparse_features', None)
-feature_cols = dense_features + sparse_features
-
 feature_clean_func = train_config_detail[dir_mark].get('feature_clean_func', None)
 
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
 model_path = os.path.join(model_dir, dir_mark)
-item_feature_creator = train_config_detail[dir_mark].get('item_feature_creator', None)
 
+target_raw_data_dir = os.path.join(raw_data_path, dir_mark)
+
+check_create_dir(target_raw_data_dir)
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
 logging.info(f"Reading data from {data_dir}")
 if debug:
+    train_df = pd.read_csv(os.path.join(data_dir, 'train.csv'), nrows=debug_num)
     test_df = pd.read_csv(os.path.join(data_dir, 'test.csv'), nrows=debug_num)
 else:
+    train_df = pd.read_csv(os.path.join(data_dir, 'train.csv'))
     test_df = pd.read_csv(os.path.join(data_dir, 'test.csv'))
 
-logging.info(f"    All Features...")
-fc = feature_creator_class(feature_cols=dense_features+sparse_features, item_feature_class=item_feature_creator)
-test, _ = fc.get_features(df=test_df, task='inference')
 
-print(feature_cols)
+train_df = reduce_mem_usage(train_df)
+test_df = reduce_mem_usage(test_df)
 
-del test_df
-
-logging.info(f"test dim: {test.shape}")
-
-logging.info(f"Model predicting...")
-pipeline = pipeline_class(model_path=model_path, model_training=False, model_params=model_params)
-
-test['predicted'] = pipeline.predict(test[feature_cols])
-
-if debug:
-    file_name = 'debug_'+dir_mark+'.csv'
-else:
-    file_name = dir_mark + '.csv'
-logging.info(f"saving to {file_name}")
-save_submission(rec_df=test[submission_cols + ['predicted']], file_name=file_name)
+logging.info(f"Creating features")
 
 
+fc = ItemFeatureCreator(train_df=train_df, test_df=test_df, feature_path=offline_feature_path)
 
-
+item_features = fc.get_features()
+logging.info(item_features.head())
+fc.save_features()

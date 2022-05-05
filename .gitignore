@@ -132,6 +132,7 @@ dmypy.json
 raw_data/*
 result/*
 model_training/*
+model_finished/*
 data/*
 logs/*
 

@@ -36,6 +36,9 @@ additional_train_params = train_config_detail[dir_mark].get('additional_train_pa
 model_path = os.path.join(model_dir, dir_mark)
 
 target_raw_data_dir = os.path.join(raw_data_path, dir_mark)
+item_feature_creator = train_config_detail[dir_mark].get('item_feature_creator', None)
+
+feature_cols = dense_features + sparse_features
 
 check_create_dir(target_raw_data_dir)
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
@@ -50,9 +53,13 @@ else:
 all_df = reduce_mem_usage(all_df)
 
 logging.info(f"    All Features...")
-fc = feature_creator_class(feature_cols=dense_features+sparse_features)
+fc = feature_creator_class(feature_cols=dense_features+sparse_features,
+                           item_feature_class=item_feature_creator)
 
-train_eval, feature_cols = fc.get_features(df=all_df, task='train_eval')
+train_eval, _ = fc.get_features(df=all_df, task='train_eval')
+
+
+train_eval[feature_cols]
 
 assert 'srch_id' in train_eval.columns
 assert train_eval.shape[0] == all_df.shape[0]
@@ -70,6 +77,7 @@ for srch_id_df, file_name in tqdm(zip(srch_id_dfs, file_names)):
     df = srch_id_df.merge(train_eval, how='left', on='srch_id')
     print(df.sample(5))
     df.to_pickle(os.path.join(target_raw_data_dir, file_name+'.pkl'))
+
 #
 # del train_eval_df
 #
