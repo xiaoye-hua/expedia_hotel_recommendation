@@ -8,7 +8,7 @@ import os
 import logging
 from sklearn.model_selection import train_test_split
 from src.save_submission import save_submission
-from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir
+from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir, big_data_dir
 from src.config import regression_label, submission_cols
 
 # =============== Config ============
@@ -38,10 +38,11 @@ item_feature_creator = train_config_detail[dir_mark].get('item_feature_creator',
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
 logging.info(f"Reading data from {data_dir}")
+
+test_df = pd.read_pickle(os.path.join(big_data_dir, 'test.pkl'))
+
 if debug:
-    test_df = pd.read_csv(os.path.join(data_dir, 'test.csv'), nrows=debug_num)
-else:
-    test_df = pd.read_csv(os.path.join(data_dir, 'test.csv'))
+    test_df = test_df.sample(debug_num)
 
 logging.info(f"    All Features...")
 fc = feature_creator_class(feature_cols=dense_features+sparse_features, item_feature_class=item_feature_creator)
@@ -64,7 +65,5 @@ else:
     file_name = dir_mark + '.csv'
 logging.info(f"saving to {file_name}")
 save_submission(rec_df=test[submission_cols + ['predicted']], file_name=file_name)
-
-
 
 

@@ -12,9 +12,10 @@ from src.Pipeline.XGBRegressionPipeline import XGBRegressionPipeline
 from src.Pipeline.LGBRegPipeline import LGBRegPipeline
 from src.Pipeline.LGBMRankerPipeline import LGBMRankerPipeline
 
-dir_mark = '0503_lgbmranker_v2'
+dir_mark = '0503_lgbmranker_v1'
 # dir_mark = '0429_xgb_v1'
 debug = False
+big_data = False
 debug_num = 100000
 no_test = False
 
@@ -26,7 +27,12 @@ else:
     model_dir = 'model_training/'
 
 # base_dir = '../'
-data_dir = 'raw_data/'
+big_data_dir = 'data/raw_data/big_data'
+small_data_dir = 'data/raw_data/small_data'
+if big_data:
+    data_dir = big_data_dir
+else:
+    data_dir = small_data_dir
 result_dir = 'result/'
 
 
@@ -279,7 +285,6 @@ train_config_detail = {
         ]
         # , 'feature_clean_func': clean_feature
         # , 'target_col': 'whether_min'
-        , 'data_dir_mark': '0429_xgb_v1'
     },
     "0503_lgbmranker_v1": {  # excpet pipeline -> everything is the same
         "pipeline_class": LGBMRankerPipeline
@@ -359,7 +364,6 @@ train_config_detail = {
         ]
         # , 'feature_clean_func': clean_feature
         # , 'target_col': 'whether_min'
-        , 'data_dir_mark': '0429_xgb_v1'
     },
     "0503_lgbmranker_v2": {  # excpet pipeline -> everything is the same
         "pipeline_class": LGBMRankerPipeline

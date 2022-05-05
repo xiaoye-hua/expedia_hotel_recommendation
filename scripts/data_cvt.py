@@ -44,15 +44,11 @@ check_create_dir(target_raw_data_dir)
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
 logging.info(f"Reading data from {data_dir}")
+all_df = pd.read_pickle(os.path.join(data_dir, 'train.pkl'))
 if debug:
-    all_df = pd.read_csv(os.path.join(data_dir, 'train.csv'), nrows=debug_num)
-else:
-    all_df = pd.read_csv(os.path.join(data_dir, 'train.csv'))
+    all_df = all_df.sample(debug_num)
 
-
-all_df = reduce_mem_usage(all_df)
-
-logging.info(f"    All Features...")
+logging.info(f"Data shape: {all_df.shape}; Creating all Features...")
 fc = feature_creator_class(feature_cols=dense_features+sparse_features,
                            item_feature_class=item_feature_creator)
 
@@ -75,6 +71,7 @@ file_names = ['train_df', 'eval_df', 'test_df']
 logging.info(f"Saving file to {target_raw_data_dir}")
 for srch_id_df, file_name in tqdm(zip(srch_id_dfs, file_names)):
     df = srch_id_df.merge(train_eval, how='left', on='srch_id')
+    print(df.shape)
     print(df.sample(5))
     df.to_pickle(os.path.join(target_raw_data_dir, file_name+'.pkl'))
 

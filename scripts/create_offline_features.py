@@ -5,9 +5,10 @@
 import pandas as pd
 import os
 import logging
+
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
-from scripts.train_config import raw_data_path
+from scripts.train_config import raw_data_path, big_data_dir
 from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir
 from src.config import regression_label, submission_cols, offline_feature_path
 from src.utils.memory_utils import reduce_mem_usage
@@ -41,16 +42,12 @@ check_create_dir(target_raw_data_dir)
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
 logging.info(f"Reading data from {data_dir}")
+train_df = pd.read_pickle(os.path.join(data_dir, 'train.pkl'))
+test_df = pd.read_pickle(os.path.join(big_data_dir, 'test.pkl'))
+
 if debug:
-    train_df = pd.read_csv(os.path.join(data_dir, 'train.csv'), nrows=debug_num)
-    test_df = pd.read_csv(os.path.join(data_dir, 'test.csv'), nrows=debug_num)
-else:
-    train_df = pd.read_csv(os.path.join(data_dir, 'train.csv'))
-    test_df = pd.read_csv(os.path.join(data_dir, 'test.csv'))
-
-
-train_df = reduce_mem_usage(train_df)
-test_df = reduce_mem_usage(test_df)
+    train_df = train_df.sample(debug_num)
+    test_df = test_df.sample(debug_num)
 
 logging.info(f"Creating features")
 

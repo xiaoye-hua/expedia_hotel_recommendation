@@ -12,7 +12,7 @@ from src.config import submission_cols, submission_cols_origin
 
 
 class FeatureCreatorV2(BaseFeatureCreator):
-    def __init__(self,  user_feature_cols_tuple=None, item_feature_cols_tuple=None, feature_cols=[]):
+    def __init__(self,  user_feature_cols_tuple=None, item_feature_cols_tuple=None, feature_cols=[], **kwargs):
         self.feature_cols = set(feature_cols)
         self.user_feature_cols_tuple = user_feature_cols_tuple
         self.item_feature_cols_tuple = item_feature_cols_tuple
