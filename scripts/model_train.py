@@ -9,7 +9,7 @@ import os
 import logging
 from sklearn.model_selection import train_test_split
 from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir, raw_data_path
-from src.config import regression_label, submission_cols
+from src.config import regression_label, submission_cols, position_feature_path
 from scripts.train_config import no_test
 from src.Evaluation import get_ndcg
 
@@ -30,7 +30,11 @@ dense_features = train_config_detail[dir_mark].get('dense_features', None)
 sparse_features = train_config_detail[dir_mark].get('sparse_features', None)
 feature_cols = dense_features + sparse_features
 feature_clean_func = train_config_detail[dir_mark].get('feature_clean_func', None)
-
+position_feature_included = train_config_detail[dir_mark].get('position_feature_included', False)
+position_feature_cols = train_config_detail[dir_mark].get('position_feature_cols', None)
+if position_feature_included:
+    assert position_feature_cols is not None
+    position_df = pd.read_csv(position_feature_path)
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
 model_path = os.path.join(model_dir, dir_mark)
@@ -55,6 +59,7 @@ logging.info(f"Reading data from {target_raw_data_dir}")
 train_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'train_df.pkl'))
 eval_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'eval_df.pkl'))
 test_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'test_df.pkl'))
+
 
 
 
@@ -151,6 +156,23 @@ if not no_test:
     pipeline.eval(X=test_df[feature_cols], y=test_df[regression_label])
 logging.info(f"Model saving to {model_path}..")
 pipeline.save_pipeline()
+
+
+def change_position_features(df):
+    df = df.drop(position_feature_cols, axis=1)
+    df.loc[:, 'position'] = 1
+    df = df.merge(position_df, how='left', on='position')
+    return df
+
+if position_feature_included:
+    eval_df = change_position_features(eval_df)
+    train_df = change_position_features(train_df)
+    test_df = change_position_features(test_df)
+
+    for df in [eval_df, train_df, test_df]:
+        print(pd.unique(df['position']))
+        assert len(pd.unique(df['position'])) == 1
+
 
 eval_df['predicted'] = pipeline.predict(eval_df[feature_cols])
 train_df['predicted'] = pipeline.predict(train_df[feature_cols])

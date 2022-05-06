@@ -88,24 +88,28 @@ class LGBMRankerPipeline(BasePipeline):
         #     self.model_params = self.grid_search_parms(X=train_X, y=train_y, parameters=grid_search_dict)
         #     end = time.time()
         #     logging.info(f"Time consumed: {round((end-begin)/60, 3)}mins")
+
         self.xgb = LGBMRanker(**self.model_params)
         if train_valid:
             eval_X = test_X.copy()
             eval_y = test_y.copy()
             # eval_X = data_transfomer.transform(eval_X)
             logging.info(f"Eval data shape after data process: {eval_X.shape}")
+
+
             self.xgb.fit(X=train_X, y=train_y, group=train_group,  verbose=True  #, eval_metric=['mae']
                          , eval_set=[[train_X, train_y], [eval_X, eval_y]]
                          , eval_group=[train_group, eval_group]
-                         , early_stopping_rounds=30
+                         # , early_stopping_rounds=30
                          , categorical_feature=category_features
                          )
+
             print(f"Model params are {self.xgb.get_params()}")
             # self._plot_eval_result()
         else:
             self.xgb.fit(X=train_X, y=train_y, train_group=train_group, verbose=True #, eval_metric=['mae']
                          , eval_set=[[train_X, train_y]], eval_group=[train_group]
-                        , early_stopping_rounds=30
+                        # , early_stopping_rounds=30
                          , categorical_feature=category_features)
         pipeline_lst.append(('model', self.xgb))
         self.pipeline = Pipeline(pipeline_lst)
