@@ -100,7 +100,7 @@ class LGBMRankerPipeline(BasePipeline):
             self.xgb.fit(X=train_X, y=train_y, group=train_group,  verbose=True  #, eval_metric=['mae']
                          , eval_set=[[train_X, train_y], [eval_X, eval_y]]
                          , eval_group=[train_group, eval_group]
-                         # , early_stopping_rounds=30
+                         , early_stopping_rounds=30
                          , categorical_feature=category_features
                          )
 
@@ -109,7 +109,7 @@ class LGBMRankerPipeline(BasePipeline):
         else:
             self.xgb.fit(X=train_X, y=train_y, train_group=train_group, verbose=True #, eval_metric=['mae']
                          , eval_set=[[train_X, train_y]], eval_group=[train_group]
-                        # , early_stopping_rounds=30
+                        , early_stopping_rounds=30
                          , categorical_feature=category_features)
         pipeline_lst.append(('model', self.xgb))
         self.pipeline = Pipeline(pipeline_lst)

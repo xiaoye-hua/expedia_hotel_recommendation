@@ -66,4 +66,3 @@ else:
 logging.info(f"saving to {file_name}")
 save_submission(rec_df=test[submission_cols + ['predicted']], file_name=file_name)
 
-

@@ -30,8 +30,10 @@ regression_label = 'label'
 offline_feature_path = 'model_finished/offline_features/'
 position_feature_path = os.path.join(offline_feature_path, 'position_features.csv')
 item_feature_prefix = 'prop_id_'
+dest_feature_prefix = 'srch_dest_id_'
 listwise_feature_prefix = 'listwise_'
 item_feature_file = 'prop_id_features.csv'
+dest_feature_file = 'srch_dest_id_features.csv'
 listwise_feature_file = 'listwise_feature.csv'
 
 submission_cols_origin = ['srch_id', 'prop_id']
@@ -39,6 +41,7 @@ submission_cols_origin = ['srch_id', 'prop_id']
 submission_cols =  ['SearchId','PropertyId']
 search_id = 'srch_id'
 prop_id = 'prop_id'
+dest_id = 'srch_destination_id'
 
 original_dense_features = ['visitor_hist_starrating'
             , 'visitor_hist_adr_usd'

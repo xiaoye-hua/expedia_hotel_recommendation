@@ -9,7 +9,7 @@ from typing import Tuple, List
 from src.FeatureCreator import BaseFeatureCreator
 from src.config import regression_label, position_feature_path
 from src.FeatureCreator.utils import get_label
-from src.config import submission_cols, submission_cols_origin, prop_id, search_id
+from src.config import submission_cols, submission_cols_origin, prop_id, search_id, dest_id, item_feature_prefix, dest_feature_prefix
 
 
 class FeatureCreatorV3(BaseFeatureCreator):
@@ -25,7 +25,7 @@ class FeatureCreatorV3(BaseFeatureCreator):
             self.item_feature_creator.get_features()
         self.position_col = 'position'
 
-    def _get_date_info(self) -> None:
+    def _get_context_features(self) -> None:
         assert self.feature_data is not None
         self.feature_data['date_time'] = pd.to_datetime(self.feature_data['date_time'])
         # self.feature_data['year'] = self.feature_data['date_time'].dt.year
@@ -33,6 +33,14 @@ class FeatureCreatorV3(BaseFeatureCreator):
         self.feature_data['hour'] = self.feature_data['date_time'].dt.hour
         self.feature_data['dayofweek'] = self.feature_data['date_time'].dt.dayofweek
         self.feature_cols.update(['month', 'hour', 'dayofweek'])
+
+        def get_domestic_feature(row):
+            if row['prop_country_id'] == row['srch_destination_id']:
+                return 1
+            else:
+                return 0
+        self.feature_data['whether_domestic'] = self.feature_data.apply(lambda row: get_domestic_feature(row), axis=1)
+        self.feature_cols.update(['whether_domestic'])
         # self.feature_data['day_from_0'] = (self.feature_data['date_time'] - pd.to_datetime(min_date)).dt.days
 
     #
@@ -111,23 +119,83 @@ class FeatureCreatorV3(BaseFeatureCreator):
     def _get_item_features(self):
         if self.item_feature_creator is not None:
             self.feature_data = self.feature_data.merge(self.item_feature_creator.item_feature, how='left', on=prop_id)
+            self.feature_data = self.feature_data.merge(self.item_feature_creator.dest_feature, how='left', on=dest_id)
+            def get_ctr_cvt(row, col: str, prefix: str):
+                """
+
+                :param row:
+                :param col：click_bool or booking_book
+                :param prefix: dest_id or prop_id
+                :return:
+                """
+                col_map = {
+                    'click_bool': prefix+"_all_ctr"
+                    , 'booking_bool': prefix+'_all_ctcvr'
+                }
+                cnt_col  = ("_".join([prefix, col.split('_')[0], 'cnt']))
+
+                if row[prefix+'_total_cnt'] == 1:
+                    return row[col_map[col]]
+                else:
+                    if row[col] == 0:
+                        return row[cnt_col]/(row[prefix+'_total_cnt']-1)
+                    else:
+                        return (row[cnt_col]-1)/row[prefix + '_total_cnt']
+
+            for prefix in [item_feature_prefix[:-1], dest_feature_prefix[:-1]]:
+                for col, name in zip(['click_bool', 'booking_bool'], ['ctr', 'ctcvr']):
+                    final_col_name = ('_').join([prefix, name,'excluded_self'])
+                    print(final_col_name)
+                    self.feature_data[final_col_name] = self.feature_data.apply(lambda row: get_ctr_cvt(row=row, col=col, prefix=prefix), axis=1)
 
     def _get_listwise_features(self):
-        self.feature_data['price_usd_rank'] = self.feature_data.groupby(search_id)['price_usd'].rank(method='dense', ascending=True)
-        self.price_info = self.feature_data.groupby(search_id).agg({'price_usd': [np.max, np.min]})['price_usd'].reset_index().rename(columns={'amin':'price_min', 'amax': 'price_max'})
-        self.price_rank_info = self.feature_data.groupby(search_id).agg({'price_usd_rank': [np.max, np.min]})['price_usd_rank'].reset_index().rename(columns={'amin':'price_rank_min', 'amax': 'price_rank_max'})
-        self.price_info['price_diff'] = self.price_info['price_max'] -self.price_info['price_min']
-        self.price_rank_info['price_rank_diff'] = self.price_rank_info['price_rank_max'] -self.price_rank_info['price_rank_min']
+        col_lst = ['price_usd'
+                ,'prop_starrating'
+                , 'prop_review_score'
+                   ]
         def change_0(row, col):
             if row[col] == 0:
                 return 1
             return row[col]
-        self.price_info['price_diff'] = self.price_info.apply(lambda row: change_0(row, 'price_diff'), axis=1)
-        self.price_rank_info['price_rank_diff'] = self.price_rank_info.apply(lambda row: change_0(row, 'price_rank_diff'), axis=1)
-        self.feature_data = self.feature_data.merge(self.price_info, how='left', on=search_id)
-        self.feature_data = self.feature_data.merge(self.price_rank_info, how='left', on=search_id)
-        self.feature_data['price_percentile'] = (self.feature_data['price_usd']-self.feature_data['price_min'])/self.feature_data['price_diff']
-        self.feature_data['price_rank_percentile'] = (self.feature_data['price_usd_rank']-self.feature_data['price_rank_min'])/self.feature_data['price_rank_diff']
+
+        for col in col_lst:
+            self.feature_data[col + '_rank'] = self.feature_data.groupby(search_id)[col].rank(method='dense',
+                                                                                              ascending=True)
+            self.info = self.feature_data.groupby(search_id).agg({col: [np.max, np.min]})[col].reset_index().rename(
+                columns={'amin': col + '_min', 'amax': col + '_max'})
+            self.rank_info = self.feature_data.groupby(search_id).agg({col + '_rank': [np.max, np.min]})[
+                col + '_rank'].reset_index().rename(columns={'amin': col + '_rank_min', 'amax': col + '_rank_max'})
+            self.info[col + '_diff'] = self.info[col + '_max'] - self.info[col + '_min']
+            self.rank_info[col + '_rank_diff'] = self.rank_info[col + '_rank_max'] - self.rank_info[col + '_rank_min']
+            self.info[col + '_diff'] = self.info.apply(lambda row: change_0(row, col + '_diff'), axis=1)
+            self.rank_info[col + '_rank_diff'] = self.rank_info.apply(lambda row: change_0(row, col + '_rank_diff'),
+                                                                      axis=1)
+            self.feature_data = self.feature_data.merge(self.info, how='left', on=search_id)
+            self.feature_data = self.feature_data.merge(self.rank_info, how='left', on=search_id)
+            self.feature_data[col + '_percentile'] = (self.feature_data[col] - self.feature_data[col + '_min']) / \
+                                                     self.feature_data[col + '_diff']
+            self.feature_data[col + '_rank_percentile'] = (self.feature_data[col + '_rank'] - self.feature_data[
+                col + '_rank_min']) / self.feature_data[col + '_rank_diff']
+
+            for column in [col + '_min', col + '_max', col + '_diff', col + '_rank', col + '_rank_diff',
+                           col + '_rank_min', col + '_rank_max']:
+                self.feature_data = self.feature_data.drop(column, axis=1)
+
+        # self.feature_data['price_usd_rank'] = self.feature_data.groupby(search_id)['price_usd'].rank(method='dense', ascending=True)
+        # self.price_info = self.feature_data.groupby(search_id).agg({'price_usd': [np.max, np.min]})['price_usd'].reset_index().rename(columns={'amin':'price_min', 'amax': 'price_max'})
+        # self.price_rank_info = self.feature_data.groupby(search_id).agg({'price_usd_rank': [np.max, np.min]})['price_usd_rank'].reset_index().rename(columns={'amin':'price_rank_min', 'amax': 'price_rank_max'})
+        # self.price_info['price_diff'] = self.price_info['price_max'] -self.price_info['price_min']
+        # self.price_rank_info['price_rank_diff'] = self.price_rank_info['price_rank_max'] -self.price_rank_info['price_rank_min']
+        # def change_0(row, col):
+        #     if row[col] == 0:
+        #         return 1
+        #     return row[col]
+        # self.price_info['price_diff'] = self.price_info.apply(lambda row: change_0(row, 'price_diff'), axis=1)
+        # self.price_rank_info['price_rank_diff'] = self.price_rank_info.apply(lambda row: change_0(row, 'price_rank_diff'), axis=1)
+        # self.feature_data = self.feature_data.merge(self.price_info, how='left', on=search_id)
+        # self.feature_data = self.feature_data.merge(self.price_rank_info, how='left', on=search_id)
+        # self.feature_data['price_percentile'] = (self.feature_data['price_usd']-self.feature_data['price_min'])/self.feature_data['price_diff']
+        # self.feature_data['price_rank_percentile'] = (self.feature_data['price_usd_rank']-self.feature_data['price_rank_min'])/self.feature_data['price_rank_diff']
 
     def get_features(self, df: pd.DataFrame, task='train_eval') -> Tuple[pd.DataFrame, List[str]]:
         """
@@ -149,7 +217,7 @@ class FeatureCreatorV3(BaseFeatureCreator):
             # , self._get_position_ctr
             # self._map_minus_1
             self._get_item_features
-            , self._get_date_info
+            , self._get_context_features
             , self._get_listwise_features
         ]
         for func in funcs:

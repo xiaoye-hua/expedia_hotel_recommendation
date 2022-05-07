@@ -142,7 +142,7 @@ train_params = {
 #
 # }
 
-
+print(feature_cols)
 logging.info(f"Model training...")
 pipeline = pipeline_class(model_path=model_path, model_training=True, model_params=model_params)
 # logging.info(f"Train data shape : {train_features.shape}")

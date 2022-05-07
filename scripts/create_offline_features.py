@@ -49,11 +49,16 @@ if debug:
     train_df = train_df.sample(debug_num)
     test_df = test_df.sample(debug_num)
 
+logging.info(f"train_df: {train_df.shape}; test_df: {test_df.shape}")
 logging.info(f"Creating features")
 
 
 fc = ItemFeatureCreator(train_df=train_df, test_df=test_df, feature_path=offline_feature_path)
 
-item_features = fc.get_features()
+item_features, dest_features = fc.get_features()
+logging.info(f"Item features: {item_features.columns}")
+logging.info(f"dest features: {dest_features.columns}")
+
 logging.info(item_features.head())
+logging.info(dest_features.head())
 fc.save_features()
