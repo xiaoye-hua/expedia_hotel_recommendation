@@ -27,8 +27,8 @@ channel_feature_file = 'channel_features.csv'
 
 # Expedia Project
 regression_label = 'label'
-# offline_feature_path = 'model_finished/offline_features/'
-# position_feature_path = os.path.join(offline_feature_path, 'position_features.csv')
+offline_feature_path = 'model_finished/offline_features/'
+position_feature_path = os.path.join(offline_feature_path, 'position_features.csv')
 item_feature_prefix = 'prop_id_'
 dest_feature_prefix = 'srch_dest_id_'
 listwise_feature_prefix = 'listwise_'

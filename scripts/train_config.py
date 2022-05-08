@@ -19,7 +19,7 @@ from src.Pipeline.LGBMRankerPipeline import LGBMRankerPipeline
 dir_mark = '0507_lgbmranker_v2'
 # dir_mark = '0429_xgb_v1'
 debug = False
-big_data = False
+big_data = True
 debug_num = 100000
 no_test = False
 

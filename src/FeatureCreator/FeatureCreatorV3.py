@@ -13,16 +13,16 @@ from src.config import submission_cols, submission_cols_origin, prop_id, search_
 
 
 class FeatureCreatorV3(BaseFeatureCreator):
-    def __init__(self,item_feature_class:BaseFeatureCreator(), user_feature_class:BaseFeatureCreator, feature_cols=[]):
+    def __init__(self,item_feature_class, user_feature_class, feature_cols=[]):
         self.feature_cols = set(feature_cols)
         self.user_feature_creator = user_feature_class
         self.item_feature_creator = item_feature_class
         if user_feature_class is not None:
             self.user_feature_creator = user_feature_class
-            self.user_feature_creator.get_features()
+            # self.user_feature_creator.get_features()
         if item_feature_class is not None:
             self.item_feature_creator = item_feature_class
-            self.item_feature_creator.get_features()
+            # self.item_feature_creator.
         self.position_col = 'position'
 
     def _get_context_features(self) -> None:
