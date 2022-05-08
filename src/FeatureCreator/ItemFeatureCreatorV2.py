@@ -10,13 +10,12 @@ import os
 from src.config import search_id, prop_id, original_dense_features, dest_id, dest_feature_prefix
 
 from src.FeatureCreator import BaseFeatureCreator
-from src.config import item_feature_file, dest_feature_file, item_feature_prefix, listwise_feature_prefix, listwise_feature_file
-    # , offline_feature_path
+from src.config import item_feature_file, dest_feature_file, item_feature_prefix, listwise_feature_prefix, listwise_feature_file, offline_feature_path
 
 
-class ItemFeatureCreator(BaseFeatureCreator):
-    def __init__(self, train_df=None, test_df=None, feature_path=None) -> None:
-        super(ItemFeatureCreator, self).__init__()
+class ItemFeatureCreatorV2(BaseFeatureCreator):
+    def __init__(self, train_df=None, test_df=None, feature_path=offline_feature_path) -> None:
+        super(ItemFeatureCreatorV2, self).__init__()
         self._check_dir(feature_path)
         self.feature_dir = feature_path
         self.item_feature_path = os.path.join(self.feature_dir, item_feature_file)
@@ -157,9 +156,9 @@ class ItemFeatureCreator(BaseFeatureCreator):
         else:
             funcs = [
                 self._get_item_statistic_features
-                # , self._get_item_target_features
-                # , self._get_dest_statistic_features
-                # , self._get_dest_target_features
+                , self._get_item_target_features
+                , self._get_dest_statistic_features
+                , self._get_dest_target_features
             ]
             for func in funcs:
                 func()

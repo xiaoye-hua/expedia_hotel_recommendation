@@ -7,21 +7,21 @@ import numpy as np
 from typing import Tuple, List
 
 from src.FeatureCreator import BaseFeatureCreator
-from src.config import regression_label#, position_feature_path
+from src.config import regression_label, position_feature_path
 from src.FeatureCreator.utils import get_label
 from src.config import submission_cols, submission_cols_origin, prop_id, search_id, dest_id, item_feature_prefix, dest_feature_prefix
 
 
-class FeatureCreatorV3(BaseFeatureCreator):
-    def __init__(self,item_feature_class:BaseFeatureCreator(), user_feature_class:BaseFeatureCreator, feature_cols=[]):
+class FeatureCreatorV5(BaseFeatureCreator):
+    def __init__(self, user_feature_class=None, item_feature_class=None, feature_cols=[]):
         self.feature_cols = set(feature_cols)
         self.user_feature_creator = user_feature_class
         self.item_feature_creator = item_feature_class
         if user_feature_class is not None:
-            self.user_feature_creator = user_feature_class
+            self.user_feature_creator = user_feature_class()
             self.user_feature_creator.get_features()
         if item_feature_class is not None:
-            self.item_feature_creator = item_feature_class
+            self.item_feature_creator = item_feature_class()
             self.item_feature_creator.get_features()
         self.position_col = 'position'
 
@@ -119,34 +119,34 @@ class FeatureCreatorV3(BaseFeatureCreator):
     def _get_item_features(self):
         if self.item_feature_creator is not None:
             self.feature_data = self.feature_data.merge(self.item_feature_creator.item_feature, how='left', on=prop_id)
-            # self.feature_data = self.feature_data.merge(self.item_feature_creator.dest_feature, how='left', on=dest_id)
-            # def get_ctr_cvt(row, col: str, prefix: str):
-            #     """
-            #
-            #     :param row:
-            #     :param col：click_bool or booking_book
-            #     :param prefix: dest_id or prop_id
-            #     :return:
-            #     """
-            #     col_map = {
-            #         'click_bool': prefix+"_all_ctr"
-            #         , 'booking_bool': prefix+'_all_ctcvr'
-            #     }
-            #     cnt_col  = ("_".join([prefix, col.split('_')[0], 'cnt']))
-            #
-            #     if row[prefix+'_total_cnt'] == 1:
-            #         return row[col_map[col]]
-            #     else:
-            #         if row[col] == 0:
-            #             return row[cnt_col]/(row[prefix+'_total_cnt']-1)
-            #         else:
-            #             return (row[cnt_col]-1)/row[prefix + '_total_cnt']
-            #
-            # for prefix in [item_feature_prefix[:-1], dest_feature_prefix[:-1]]:
-            #     for col, name in zip(['click_bool', 'booking_bool'], ['ctr', 'ctcvr']):
-            #         final_col_name = ('_').join([prefix, name,'excluded_self'])
-            #         print(final_col_name)
-            #         self.feature_data[final_col_name] = self.feature_data.apply(lambda row: get_ctr_cvt(row=row, col=col, prefix=prefix), axis=1)
+            self.feature_data = self.feature_data.merge(self.item_feature_creator.dest_feature, how='left', on=dest_id)
+            def get_ctr_cvt(row, col: str, prefix: str):
+                """
+
+                :param row:
+                :param col：click_bool or booking_book
+                :param prefix: dest_id or prop_id
+                :return:
+                """
+                col_map = {
+                    'click_bool': prefix+"_all_ctr"
+                    , 'booking_bool': prefix+'_all_ctcvr'
+                }
+                cnt_col  = ("_".join([prefix, col.split('_')[0], 'cnt']))
+
+                if row[prefix+'_total_cnt'] == 1:
+                    return row[col_map[col]]
+                else:
+                    if row[col] == 0:
+                        return row[cnt_col]/(row[prefix+'_total_cnt']-1)
+                    else:
+                        return (row[cnt_col]-1)/row[prefix + '_total_cnt']
+
+            for prefix in [item_feature_prefix[:-1], dest_feature_prefix[:-1]]:
+                for col, name in zip(['click_bool', 'booking_bool'], ['ctr', 'ctcvr']):
+                    final_col_name = ('_').join([prefix, name,'excluded_self'])
+                    print(final_col_name)
+                    self.feature_data[final_col_name] = self.feature_data.apply(lambda row: get_ctr_cvt(row=row, col=col, prefix=prefix), axis=1)
 
     def _get_listwise_features(self):
         col_lst = ['price_usd'

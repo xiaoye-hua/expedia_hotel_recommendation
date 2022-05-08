@@ -10,6 +10,7 @@ from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 from scripts.train_config import raw_data_path
 from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir
+from scripts.train_config import big_data_dir
 from src.config import regression_label, submission_cols
 from src.utils.memory_utils import reduce_mem_usage
 from src.utils import check_create_dir
@@ -45,8 +46,19 @@ additional_train_params = train_config_detail[dir_mark].get('additional_train_pa
 
 logging.info(f"Reading data from {data_dir}")
 all_df = pd.read_pickle(os.path.join(data_dir, 'train.pkl'))
+test_df = pd.read_pickle(os.path.join(big_data_dir, 'test.pkl'))
+
 if debug:
     all_df = all_df.sample(debug_num)
+
+
+logging.info(f"Creating item features")
+fc = item_feature_creator(train_df=all_df, test_df=test_df, feature_path=target_raw_data_dir)
+item_features, dest_features = fc.get_features()
+logging.info(f"Item features: {item_features.columns}")
+
+logging.info(item_features.head())
+fc.save_features()
 
 logging.info(f"Data shape: {all_df.shape}; Creating all Features...")
 fc = feature_creator_class(feature_cols=dense_features+sparse_features,
@@ -74,46 +86,3 @@ for srch_id_df, file_name in tqdm(zip(srch_id_dfs, file_names)):
     print(df.shape)
     print(df.sample(5))
     df.to_pickle(os.path.join(target_raw_data_dir, file_name+'.pkl'))
-
-#
-# del train_eval_df
-#
-# logging.info(f"train evla dim：{train_eval.shape};")
-#
-#
-# train, eval = train_test_split(train_eval, test_size=0.1)
-# train_params = {
-#     # 'df_for_encode_train': raw_df
-#     'train_valid': train_valid
-#     , "df_for_encode_train": train_eval[feature_cols].copy()
-#     , 'category_features': sparse_features
-# }
-# del train_eval
-#
-#
-# # Dnn
-# # train_params = {
-# #     'epoch': 3
-# #     , 'batch_size': 512
-# #     , 'pca_component_num': pca_component_num
-# #     , "df_for_encode_train": raw_df
-# #     , 'train_valid': (eval_features[feature_cols], eval_features[['is_clicked']])
-# #
-# # }
-#
-#
-# logging.info(f"Model training...")
-# pipeline = pipeline_class(model_path=model_path, model_training=True, model_params=model_params)
-# # logging.info(f"Train data shape : {train_features.shape}")
-# pipeline.train(X=train[feature_cols], y=train[regression_label], train_params=train_params)
-# # logging.info(f"Test feature creating..")
-# # test_features, feature_cols = fc.get_features(df=test_df)
-# # test_features = test_features.merge(label, how='left', left_index=True, right_index=True)
-# #
-# logging.info(f"Model testing...")
-# logging.info(f"Test data shape : {eval.shape}")
-# pipeline.eval(X=eval[feature_cols], y=eval[regression_label])
-# logging.info(f"Model saving to {model_path}..")
-# pipeline.save_pipeline()
-#
-#
