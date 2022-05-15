@@ -32,6 +32,13 @@ feature_cols = dense_features + sparse_features
 feature_clean_func = train_config_detail[dir_mark].get('feature_clean_func', None)
 position_feature_included = train_config_detail[dir_mark].get('position_feature_included', False)
 position_feature_cols = train_config_detail[dir_mark].get('position_feature_cols', None)
+epochs = train_config_detail[dir_mark].get('epochs', None)
+batch_size = train_config_detail[dir_mark].get('batch_size', None)
+dense_to_sparse = train_config_detail[dir_mark].get('dense_to_sparse', None)
+task = train_config_detail[dir_mark].get('task', None) # params for deepFM
+fillna = train_config_detail[dir_mark].get('fillna', False)
+
+
 if position_feature_included:
     assert position_feature_cols is not None
     position_df = pd.read_csv(position_feature_path)
@@ -71,6 +78,16 @@ if no_test:
     df_for_encode_train = pd.concat([train_df, eval_df], axis=0)
 else:
     df_for_encode_train = pd.concat([train_df, eval_df, test_df], axis=0)
+
+logging.info(train_df[feature_cols].isna().sum())
+if fillna:
+    for col in tqdm(feature_cols):
+        train_df[col] = train_df[col].fillna(df_for_encode_train[col].max().values[0])
+        test_df[col] = test_df[col].fillna(df_for_encode_train[col].max().values[0])
+        eval_df[col] = eval_df[col].fillna(df_for_encode_train[col].max().values[0])
+logging.info(train_df[feature_cols].isna().sum())
+df_for_encode_train = pd.concat([train_df, eval_df, test_df], axis=0)
+
 # ===================================
 
 #
@@ -121,14 +138,18 @@ train_group = train_df.groupby('srch_id')['srch_id'].count().values.tolist()
 eval_group = eval_df.groupby('srch_id')['srch_id'].count().values.tolist()
 
 train_params = {
-    # 'df_for_encode_train': raw_df
-    'train_valid': train_valid
+    'epoches': epochs
+    , 'batch_size': batch_size
+    , 'dense_to_sparse': dense_to_sparse
+    , 'train_valid': train_valid
     , "df_for_encode_train": df_for_encode_train[feature_cols].copy()
     , 'category_features': [] #sparse_features
     , 'eval_X': eval_df[feature_cols].copy()
     , 'eval_y': eval_df[regression_label].copy()
     , 'train_group':train_group
     , 'eval_group': eval_group
+    , 'sparse_features': sparse_features
+    , 'dense_features': dense_features
 }
 
 

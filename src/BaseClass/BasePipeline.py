@@ -4,8 +4,13 @@
 # @Disc    :
 from abc import ABCMeta, abstractmethod
 import os
+import tensorflow as tf
+from typing import Tuple
+import joblib
+from sklearn.pipeline import Pipeline
 import pandas as pd
 import logging
+from src.utils.plot_utils import binary_classification_eval, plot_feature_importances
 logging.getLogger(__name__)
 
 from src.utils.plot_utils import binary_classification_eval
@@ -49,3 +54,37 @@ class BasePipeline(metaclass=ABCMeta):
     #     predict_prob = self.predict(X)
     #     binary_classification_eval(test_y=y, predict_prob=predict_prob, fig_dir=fig_dir)
     #     logging.info(f"Model eval result saved in {fig_dir}")
+
+
+class BaseDNNPipeline(BasePipeline):
+    def __init__(self, model_path: str, model_training=False, **kwargs):
+        super(BaseDNNPipeline, self).__init__(model_path=model_path, model_training=model_training)
+        self.model_file_name = 'model.pb'
+        self.preprocess_file_name = 'preprocess.pkl'
+        if model_training:
+            self.pipeline = None
+            self.model = None
+        else:
+            self.pipeline, self.model = self.load_pipeline()
+
+    def predict(self, X):
+        X = self.pipeline.transform(X)
+        return self.model.predict(X)
+
+    def load_pipeline(self) -> Tuple[Pipeline, tf.keras.models.Model]:
+        pipeline = tf.keras.models.load_model(self.model_path)
+        pre_pipeline = joblib.load(
+            filename=os.path.join(self.model_path, self.preprocess_file_name)
+        )
+        return pre_pipeline, pipeline
+
+    def save_pipeline(self) -> None:
+        file_name = joblib.dump(
+            value=self.pipeline,
+            filename=os.path.join(self.model_path, self.preprocess_file_name)
+        )[0]
+        tf.keras.models.save_model(model=self.model, filepath=self.model_path)
+        logging.info(f'Model saved in {self.model_path}')
+
+    def train(self, X, y, train_params):
+        pass
