@@ -5,6 +5,7 @@
 # @Disc    :
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
 import os
 import logging
 from sklearn.model_selection import train_test_split
@@ -82,9 +83,9 @@ else:
 logging.info(train_df[feature_cols].isna().sum())
 if fillna:
     for col in tqdm(feature_cols):
-        train_df[col] = train_df[col].fillna(df_for_encode_train[col].max().values[0])
-        test_df[col] = test_df[col].fillna(df_for_encode_train[col].max().values[0])
-        eval_df[col] = eval_df[col].fillna(df_for_encode_train[col].max().values[0])
+        train_df[col] = train_df[col].fillna(df_for_encode_train[col].max())
+        test_df[col] = test_df[col].fillna(df_for_encode_train[col].max())
+        eval_df[col] = eval_df[col].fillna(df_for_encode_train[col].max())
 logging.info(train_df[feature_cols].isna().sum())
 df_for_encode_train = pd.concat([train_df, eval_df, test_df], axis=0)
 
@@ -165,7 +166,7 @@ train_params = {
 
 print(feature_cols)
 logging.info(f"Model training...")
-pipeline = pipeline_class(model_path=model_path, model_training=True, model_params=model_params)
+pipeline = pipeline_class(model_path=model_path, model_training=True, model_params=model_params, task=task)
 # logging.info(f"Train data shape : {train_features.shape}")
 pipeline.train(X=train_df[feature_cols], y=train_df[regression_label], train_params=train_params)
 # logging.info(f"Test feature creating..")

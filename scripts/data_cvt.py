@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from scripts.train_config import raw_data_path
 from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir
 from scripts.train_config import big_data_dir
-from src.config import regression_label, submission_cols
+from src.config import regression_label, submission_cols, offline_feature_path
 from src.utils.memory_utils import reduce_mem_usage
 from src.utils import check_create_dir
 
@@ -52,17 +52,18 @@ if debug:
     all_df = all_df.sample(debug_num)
 
 
-logging.info(f"Creating item features")
-fc = item_feature_creator(train_df=all_df, test_df=test_df, feature_path=target_raw_data_dir)
-item_features, dest_features = fc.get_features()
-logging.info(f"Item features: {item_features.columns}")
+# logging.info(f"Creating item features")
+# fc = item_feature_creator(train_df=all_df, test_df=test_df, feature_path=target_raw_data_dir)
+# item_features, dest_features = fc.get_features()
+# logging.info(f"Item features: {item_features.columns}")
 
-logging.info(item_features.head())
-fc.save_features()
+# logging.info(item_features.head())
+# fc.save_features()
 
+item_feature = item_feature_creator(feature_path=offline_feature_path)
 logging.info(f"Data shape: {all_df.shape}; Creating all Features...")
 fc = feature_creator_class(feature_cols=dense_features+sparse_features,
-                           item_feature_class=item_feature_creator)
+                           item_feature_class=item_feature)
 
 train_eval, _ = fc.get_features(df=all_df, task='train_eval')
 

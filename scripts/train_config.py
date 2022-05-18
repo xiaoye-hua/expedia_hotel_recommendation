@@ -20,7 +20,7 @@ from src.Pipeline.LGBMRankerPipeline import LGBMRankerPipeline
 dir_mark = '0515_deepFM_reg_v1'
 # dir_mark = '0429_xgb_v1'
 debug = False
-big_data = True
+big_data = False
 debug_num = 100000
 no_test = False
 
@@ -1010,7 +1010,7 @@ train_config_detail = {
         , 'epochs': 2
         , 'batch_size': 20
         , 'dense_to_sparse': True
-        , 'fillna':False
+        , 'fillna':True
         , 'train_valid': True
         , 'sparse_features': [
             'site_id'
@@ -1133,7 +1133,7 @@ train_config_detail = {
         ]
         # , 'feature_clean_func': clean_feature
         # , 'target_col': 'whether_min'
-        , 'data_dir_mark': '0503_lgbmranker_v2'
+        # , 'data_dir_mark': '0503_lgbmranker_v2'
     },
 
 }
