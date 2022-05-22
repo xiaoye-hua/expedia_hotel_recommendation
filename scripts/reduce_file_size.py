@@ -8,13 +8,14 @@ import os
 
 from src.utils.memory_utils import reduce_mem_usage
 from scripts.train_config import big_data_dir, small_data_dir
-
 train_path = 'raw_data/train.csv'
 test_path = 'raw_data/test.csv'
+print(f"Reading data from {train_path}; {test_path}")
 
 train = pd.read_csv(train_path)
 test = pd.read_csv(test_path)
 
+print("Reducing memory...")
 train = reduce_mem_usage(train)
 test = reduce_mem_usage(test)
 
