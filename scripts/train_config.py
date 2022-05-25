@@ -17,7 +17,7 @@ from src.Pipeline.XGBRegressionPipeline import XGBRegressionPipeline
 from src.Pipeline.LGBRegPipeline import LGBRegPipeline
 from src.Pipeline.LGBMRankerPipeline import LGBMRankerPipeline
 
-dir_mark = '0515_deepFM_reg_v1'
+dir_mark = '0503_lgbmranker_v2'
 # dir_mark = '0429_xgb_v1'
 debug = False
 big_data = False
