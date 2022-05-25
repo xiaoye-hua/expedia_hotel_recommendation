@@ -1007,8 +1007,8 @@ train_config_detail = {
         , 'feature_creator': FeatureCreatorV3  #
         , 'item_feature_creator': ItemFeatureCreator
         , 'task': 'regression'
-        , 'epochs': 2
-        , 'batch_size': 20
+        , 'epochs': 15
+        , 'batch_size': 6400
         , 'dense_to_sparse': True
         , 'fillna':True
         , 'train_valid': True

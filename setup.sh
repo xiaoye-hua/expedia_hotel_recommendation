@@ -9,15 +9,18 @@ sudo python3 install_gpu_driver.py
 
 
 # step 2: validate with DL code
-sudo apt-get install python3-dev python3-pip libcupti-dev
+sudo apt-get install python3-pip # python3-dev  libcupti-dev
 sudo pip3 install tensorflow-gpu  #  tf 1.4 ????
 # validate code https://github.com/bharat3012/Google-Cloud-An-Easy-Way-to-an-Amazing-Platform/edit/master/gpu/gpu_mnist_speedcheck.py
+
 
 
 # step: code
 git clone https://github.com/xiaoye-hua/expedia_hotel_recommendation.git
 cd expedia_hotel_recommendation/
 
+python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade Pillow
 # Step setup kaggle APi
 sudo apt install unzip
 pip3 install kaggle
@@ -33,7 +36,17 @@ mv *.csv raw_data
 rm *.zip
 
 # Step: run code
+cat requirements.txt | xargs -n 1 pip3 install   # pip install skip error: https://stackoverflow.com/a/28795395/9734266
 export PYTHONPATH=./:PYTHONPATH
+
+
+# run code
+mkdir data/raw_data/big_data
+mkdir data/raw_data/small_data
+python scripts/reduce_file_size.py
+python3 scripts/create_offline_features.py
+python3 scripts/data_cvt.py
+python3 scripts/model_train.py
 
 
 
