@@ -79,6 +79,7 @@ class BaseDNNPipeline(BasePipeline):
         return pre_pipeline, pipeline
 
     def save_pipeline(self) -> None:
+        self._check_dir(self.model_path)
         file_name = joblib.dump(
             value=self.pipeline,
             filename=os.path.join(self.model_path, self.preprocess_file_name)

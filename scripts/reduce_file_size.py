@@ -5,6 +5,7 @@
 import pandas as pd
 import numpy as np
 import os
+from src.utils import check_create_dir
 
 from src.utils.memory_utils import reduce_mem_usage
 from scripts.train_config import big_data_dir, small_data_dir
@@ -19,6 +20,8 @@ print("Reducing memory...")
 train = reduce_mem_usage(train)
 test = reduce_mem_usage(test)
 
+check_create_dir(big_data_dir)
+check_create_dir(small_data_dir)
 print(f"train: {train.shape}; test: {test.shape}")
 train.to_pickle(os.path.join(big_data_dir, 'train.pkl'))
 test.to_pickle(os.path.join(big_data_dir, 'test.pkl'))
