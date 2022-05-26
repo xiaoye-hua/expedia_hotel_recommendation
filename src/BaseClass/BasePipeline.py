@@ -84,7 +84,7 @@ class BaseDNNPipeline(BasePipeline):
             value=self.pipeline,
             filename=os.path.join(self.model_path, self.preprocess_file_name)
         )[0]
-        tf.keras.models.save_model(model=self.model, filepath=self.model_path)
+        tf.keras.models.save_model(model=self.model, filepath=os.path.join(self.model_path, self.model_file_name))
         logging.info(f'Model saved in {self.model_path}')
 
     def train(self, X, y, train_params):

@@ -9,11 +9,11 @@ export PYTHONPATH=./:PYTHONPATH
 
 python3 scripts/reduce_file_size.py
 
-python3 scripts/creat_offline_features.py
+python3 scripts/create_offline_features.py
 
 python3 scripts/data_cvt.py
 
-python3 model_train.py
+python3 scripts/model_train.py
 
 python3 model_predict.py
 
