@@ -21,7 +21,7 @@ class FeatureCreatorV5(BaseFeatureCreator):
             self.user_feature_creator = user_feature_class()
             self.user_feature_creator.get_features()
         if item_feature_class is not None:
-            self.item_feature_creator = item_feature_class()
+            self.item_feature_creator = item_feature_class
             self.item_feature_creator.get_features()
         self.position_col = 'position'
 
@@ -133,14 +133,14 @@ class FeatureCreatorV5(BaseFeatureCreator):
                     , 'booking_bool': prefix+'_all_ctcvr'
                 }
                 cnt_col  = ("_".join([prefix, col.split('_')[0], 'cnt']))
-
+                # if total_cnt=1 -> return 0
                 if row[prefix+'_total_cnt'] == 1:
-                    return row[col_map[col]]
+                    return 0 #row[col_map[col]]
                 else:
                     if row[col] == 0:
                         return row[cnt_col]/(row[prefix+'_total_cnt']-1)
                     else:
-                        return (row[cnt_col]-1)/row[prefix + '_total_cnt']
+                        return (row[cnt_col]-1)/(row[prefix + '_total_cnt']-1)
 
             for prefix in [item_feature_prefix[:-1], dest_feature_prefix[:-1]]:
                 for col, name in zip(['click_bool', 'booking_bool'], ['ctr', 'ctcvr']):
