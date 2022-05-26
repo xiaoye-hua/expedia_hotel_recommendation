@@ -90,7 +90,7 @@ class DeepFMPipeline(BaseDNNPipeline):
         elif self.task == 'regression':
             self.model.compile(optimizer="adam",
                                loss=tf.keras.losses.MeanSquaredError(),
-                                metrics=[tf.keras.losses.MeanSquaredError()],
+                                # metrics=[tf.keras.losses.MeanSquaredError()],
                                )
         else:
             raise ValueError
