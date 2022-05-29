@@ -17,10 +17,10 @@ from src.Pipeline.XGBRegressionPipeline import XGBRegressionPipeline
 from src.Pipeline.LGBRegPipeline import LGBRegPipeline
 from src.Pipeline.LGBMRankerPipeline import LGBMRankerPipeline
 
-dir_mark = '0507_lgbmranker_v1'
+dir_mark = '0515_deepFM_reg_v1'
 # dir_mark = '0429_xgb_v1'
 debug = False
-big_data = False
+big_data = True
 debug_num = 1000
 no_test = False
 
@@ -1013,7 +1013,8 @@ train_config_detail = {
         , 'fillna':True
         , 'train_valid': True
         , 'sparse_features': [
-            'site_id'
+            'prop_id'
+            , 'site_id'
             , 'visitor_location_country_id'
             , 'prop_country_id'
             , 'srch_destination_id'
