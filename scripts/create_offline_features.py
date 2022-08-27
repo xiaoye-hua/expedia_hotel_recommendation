@@ -56,6 +56,9 @@ logging.info(f"train_df: {train_df.shape}; test_df: {test_df.shape}")
 logging.info(f"Creating features")
 
 
+if debug:
+    offline_feature_path = 'data/offline_features/'
+
 fc = item_feature_creator(train_df=train_df, test_df=test_df, feature_path=offline_feature_path)
 
 item_features, dest_features = fc.get_features()

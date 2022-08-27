@@ -6,15 +6,23 @@
 import pandas as pd
 import os
 import logging
+from datetime import datetime
 from sklearn.model_selection import train_test_split
 from src.save_submission import save_submission
 from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir, big_data_dir
-from src.config import regression_label, submission_cols
+from src.config import regression_label, submission_cols, log_dir
 
 # =============== Config ============
+curDT = datetime.now()
+date_time = curDT.strftime("%m%d%H")
+current_file = os.path.basename(__file__).split('.')[0]
+log_file = '_'.join([dir_mark, current_file, date_time, '.log'])
 logging.basicConfig(level='INFO',
                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',)
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename=os.path.join(log_dir, log_file)
+                    )
+console = logging.StreamHandler()
 
 
 # target_col = train_config_detail[dir_mark]['target_col']

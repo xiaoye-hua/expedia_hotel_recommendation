@@ -6,6 +6,7 @@
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+from datetime import datetime
 import os
 import logging
 from sklearn.model_selection import train_test_split
@@ -13,11 +14,20 @@ from scripts.train_config import train_config_detail, dir_mark, data_dir, debug,
 from src.config import regression_label, submission_cols, position_feature_path
 from scripts.train_config import no_test
 from src.Evaluation import get_ndcg
+from src.config import log_dir
 
 # =============== Config ============
+curDT = datetime.now()
+date_time = curDT.strftime("%m%d%H")
+current_file = os.path.basename(__file__).split('.')[0]
+log_file = '_'.join([dir_mark, current_file, date_time, '.log'])
 logging.basicConfig(level='INFO',
                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',)
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename=os.path.join(log_dir, log_file)
+                    )
+console = logging.StreamHandler()
+logging.getLogger().addHandler(console)
 
 
 # target_col = train_config_detail[dir_mark]['target_col']
@@ -203,6 +213,6 @@ test_df['predicted'] = pipeline.predict(test_df[feature_cols])
 train_ndcg = get_ndcg(train_df)
 eval_ndcg = get_ndcg(eval_df)
 test_ndcg = get_ndcg(test_df)
-print(f"{train_df.shape}; {eval_df.shape}; {test_df.shape}")
-print(f"{train_ndcg}; {eval_ndcg}; {test_ndcg}")
+logging.info(f"{train_df.shape}; {eval_df.shape}; {test_df.shape}")
+logging.info(f"{train_ndcg}; {eval_ndcg}; {test_ndcg}")
 

@@ -5,6 +5,10 @@
 ## Run the code
 
 ```shell
+pip install jupyter
+pip install ipykernel
+python -m ipykernel install --user --name expedia_project --display-name "Python3.6(expedia_project)"
+
 export PYTHONPATH=./:PYTHONPATH
 
 python3 scripts/reduce_file_size.py

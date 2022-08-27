@@ -14,11 +14,22 @@ from scripts.train_config import big_data_dir
 from src.config import regression_label, submission_cols, offline_feature_path
 from src.utils.memory_utils import reduce_mem_usage
 from src.utils import check_create_dir
+from src.config import base_dir
+from datetime import datetime
+from src.config import log_dir
 
 # =============== Config ============
+curDT = datetime.now()
+date_time = curDT.strftime("%m%d%H")
+current_file = os.path.basename(__file__).split('.')[0]
+log_file = '_'.join([dir_mark, current_file, date_time, '.log'])
 logging.basicConfig(level='INFO',
                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',)
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename=os.path.join(log_dir, log_file)
+                    )
+console = logging.StreamHandler()
+logging.getLogger().addHandler(console)
 
 
 # target_col = train_config_detail[dir_mark]['target_col']
@@ -45,8 +56,8 @@ check_create_dir(target_raw_data_dir)
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
 logging.info(f"Reading data from {data_dir}")
-all_df = pd.read_pickle(os.path.join(data_dir, 'train.pkl'))
-test_df = pd.read_pickle(os.path.join(big_data_dir, 'test.pkl'))
+all_df = pd.read_pickle(os.path.join(base_dir, data_dir, 'train.pkl'))
+test_df = pd.read_pickle(os.path.join(base_dir, big_data_dir, 'test.pkl'))
 
 if debug:
     all_df = all_df.sample(debug_num)

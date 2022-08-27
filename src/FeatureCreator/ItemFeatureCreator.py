@@ -156,7 +156,7 @@ class ItemFeatureCreator(BaseFeatureCreator):
             self.dest_feature = pd.read_csv(self.dest_feature_path)
         else:
             funcs = [
-                self._get_item_statistic_features
+                self._get_item_statistic_features,
                 # , self._get_item_target_features
                 # , self._get_dest_statistic_features
                 # , self._get_dest_target_features

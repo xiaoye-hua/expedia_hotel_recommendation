@@ -7,6 +7,9 @@
 import os
 
 
+base_dir = './'
+log_dir = 'logs'
+
 raw_data_usecols = ['row_id', 'is_clicked', 'timestamp', 'channel', 'site_id',
        'site_category', 'app_id', 'app_category', 'device_id', 'device_ip',
        'device_model', 'device_type', 'device_conn_type', 'P1', 'P2', 'P3',
