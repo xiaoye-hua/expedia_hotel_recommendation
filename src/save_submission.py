@@ -21,6 +21,7 @@ def save_submission(rec_df, file_name: str,
     result_df = result_df.sort_values(['SearchId', "predicted"], ascending=[True, False])
     file_name = os.path.join(result_dir, file_name)
     result_df[submission_cols].to_csv(file_name, index=False)
+    print(f"done. File save to {file_name}")
     print(f"shape: {result_df[submission_cols].shape}")
     print(result_df.head())
     print(result_df[submission_cols].head())

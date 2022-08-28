@@ -61,6 +61,6 @@ source ~/.bashrc
 
 
 conda install scikit-learn pandas jupyter ipython
-conda create -n expedia_project python=3.6
+conda create -n expedia_project python=3.9
 conda activate expedia_project
 export PYTHONPATH=./:PYTHONPATH

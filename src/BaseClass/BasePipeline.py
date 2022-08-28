@@ -24,6 +24,9 @@ class BasePipeline(metaclass=ABCMeta):
         self._check_dir(self.model_path)
         self._check_dir(self.eval_result_path)
         self.model_file_name = 'pipeline.pkl'
+        self.data_transfomer_name = 'data_transformer'
+        self.model_name = 'model'
+        self.onehot_encoder_name = 'onehot'
 
     @abstractmethod
     def train(self, X, y, train_params):

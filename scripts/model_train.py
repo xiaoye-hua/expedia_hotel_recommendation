@@ -50,9 +50,9 @@ task = train_config_detail[dir_mark].get('task', None) # params for deepFM
 fillna = train_config_detail[dir_mark].get('fillna', False)
 
 
-if position_feature_included:
-    assert position_feature_cols is not None
-    position_df = pd.read_csv(position_feature_path)
+# if position_feature_included:
+#     assert position_feature_cols is not None
+#     position_df = pd.read_csv(position_feature_path)
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
 model_path = os.path.join(model_dir, dir_mark)
@@ -68,11 +68,11 @@ if not train_config_detail[dir_mark].get('data_dir_mark', False):
     target_raw_data_dir = os.path.join(raw_data_path, dir_mark)
 else:
     target_raw_data_dir = os.path.join(raw_data_path, train_config_detail[dir_mark].get('data_dir_mark', False))
-# logging.info(f"Reading data from {target_raw_data_dir}")
+# print(f"Reading data from {target_raw_data_dir}")
 # train_df = pd.read_csv(os.path.join(target_raw_data_dir, 'train.csv'))
 # eval_df = pd.read_csv(os.path.join(target_raw_data_dir, 'eval.csv'))
 # test_df = pd.read_csv(os.path.join(target_raw_data_dir, 'test.csv'))
-logging.info(f"Reading data from {target_raw_data_dir}")
+print(f"Reading data from {target_raw_data_dir}")
 
 train_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'train_df.pkl'))
 eval_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'eval_df.pkl'))
@@ -90,13 +90,13 @@ if no_test:
 else:
     df_for_encode_train = pd.concat([train_df, eval_df, test_df], axis=0)
 
-logging.info(train_df[feature_cols].isna().sum())
+print(train_df[feature_cols].isna().sum())
 if fillna:
     for col in tqdm(feature_cols):
         train_df[col] = train_df[col].fillna(df_for_encode_train[col].max())
         test_df[col] = test_df[col].fillna(df_for_encode_train[col].max())
         eval_df[col] = eval_df[col].fillna(df_for_encode_train[col].max())
-logging.info(train_df[feature_cols].isna().sum())
+print(train_df[feature_cols].isna().sum())
 df_for_encode_train = pd.concat([train_df, eval_df, test_df], axis=0)
 
 # ===================================
@@ -107,22 +107,22 @@ df_for_encode_train = pd.concat([train_df, eval_df, test_df], axis=0)
 # raw_df = raw_df.set_index('row_id')
 # label = raw_df[['is_clicked']]
 #
-# logging.info(f"Data preprocessing")
+# print(f"Data preprocessing")
 # raw_df = data_preprocess(raw_df=raw_df)
-# logging.info(f"Train & test Spliting..")
+# print(f"Train & test Spliting..")
 # train_eval_df, test_df = train_test_split(raw_df, test_size=0.2)
 
 
-# logging.info(f"Creating features...")
-# logging.info(f"    User Features...")
+# print(f"Creating features...")
+# print(f"    User Features...")
 # user_fc = UserFeatureCreator(df=train_df, feature_path=model_path)
 # user_features, user_feature_cols = user_fc.get_features()
 # user_fc.save_features()
-# logging.info(f"   Item Features... ")
+# print(f"   Item Features... ")
 # item_fc = ItemFeatureCreator(df=train_df, feature_path=model_path)
 # item_features, item_feature_cols, channel_features = item_fc.get_features()
 # item_fc.save_features()
-# logging.info(f"    All Features...")
+# print(f"    All Features...")
 # fc = feature_creator_class(feature_cols=dense_features+sparse_features)
 
 # train, train_feature = fc.get_features(df=train_df)
@@ -137,11 +137,11 @@ df_for_encode_train = pd.concat([train_df, eval_df, test_df], axis=0)
 # del train_df
 # del eval_df
 if no_test:
-    logging.info(f"train dim：{train_df.shape}; evla dim：{eval_df.shape}")
+    print(f"train dim：{train_df.shape}; evla dim：{eval_df.shape}")
 else:
-    logging.info(f"train dim：{train_df.shape}; evla dim：{eval_df.shape}; Test data shape : {test_df.shape}")
+    print(f"train dim：{train_df.shape}; evla dim：{eval_df.shape}; Test data shape : {test_df.shape}")
 
-logging.info('Sort train_df, eval_df with search_id)')
+print('Sort train_df, eval_df with search_id)')
 train_df = train_df.sort_values('srch_id')
 eval_df = eval_df.sort_values('srch_id')
 
@@ -175,44 +175,52 @@ train_params = {
 # }
 
 print(feature_cols)
-logging.info(f"Model training...")
+print(f"Model training...")
 pipeline = pipeline_class(model_path=model_path, model_training=True, model_params=model_params, task=task)
-# logging.info(f"Train data shape : {train_features.shape}")
+# print(f"Train data shape : {train_features.shape}")
 pipeline.train(X=train_df[feature_cols], y=train_df[regression_label], train_params=train_params)
-# logging.info(f"Test feature creating..")
+# print(f"Test feature creating..")
 # test_features, feature_cols = fc.get_features(df=test_df)
 # test_features = test_features.merge(label, how='left', left_index=True, right_index=True)
 #
 if not no_test:
-    logging.info(f"Model testing...")
+    print(f"Model testing...")
     pipeline.eval(X=test_df[feature_cols], y=test_df[regression_label])
-logging.info(f"Model saving to {model_path}..")
+print(f"Model saving to {model_path}..")
 pipeline.save_pipeline()
 
 
-def change_position_features(df):
+def change_position_features(df, target_position=1):
     df = df.drop(position_feature_cols, axis=1)
-    df.loc[:, 'position'] = 1
-    df = df.merge(position_df, how='left', on='position')
+    df.loc[:, 'position'] = target_position
+    # df = df.merge(position_df, how='left', on='position')
     return df
 
+def get_res(train_df, eval_df, test_df, target_position=1):
+    if position_feature_included:
+        eval_df = change_position_features(eval_df, target_position=target_position)
+        train_df = change_position_features(train_df, target_position=target_position)
+        test_df = change_position_features(test_df, target_position=target_position)
+
+        for df in [eval_df, train_df, test_df]:
+            print(pd.unique(df['position']))
+            assert len(pd.unique(df['position'])) == 1
+
+
+    eval_df['predicted'] = pipeline.predict(eval_df[feature_cols])
+    train_df['predicted'] = pipeline.predict(train_df[feature_cols])
+    test_df['predicted'] = pipeline.predict(test_df[feature_cols])
+    train_ndcg = get_ndcg(train_df)
+    eval_ndcg = get_ndcg(eval_df)
+    test_ndcg = get_ndcg(test_df)
+    print(f"{train_df.shape}; {eval_df.shape}; {test_df.shape}")
+    print(f"{train_ndcg}; {eval_ndcg}; {test_ndcg}")
+
+
 if position_feature_included:
-    eval_df = change_position_features(eval_df)
-    train_df = change_position_features(train_df)
-    test_df = change_position_features(test_df)
-
-    for df in [eval_df, train_df, test_df]:
-        print(pd.unique(df['position']))
-        assert len(pd.unique(df['position'])) == 1
-
-
-eval_df['predicted'] = pipeline.predict(eval_df[feature_cols])
-train_df['predicted'] = pipeline.predict(train_df[feature_cols])
-test_df['predicted'] = pipeline.predict(test_df[feature_cols])
-
-train_ndcg = get_ndcg(train_df)
-eval_ndcg = get_ndcg(eval_df)
-test_ndcg = get_ndcg(test_df)
-logging.info(f"{train_df.shape}; {eval_df.shape}; {test_df.shape}")
-logging.info(f"{train_ndcg}; {eval_ndcg}; {test_ndcg}")
+    for position in range(1, 25):
+        print(f"position: {position}")
+        get_res(train_df=train_df, eval_df=eval_df, test_df=test_df, target_position=position)
+else:
+    get_res(train_df=train_df, eval_df=eval_df, test_df=test_df, target_position=None)
 

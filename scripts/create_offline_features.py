@@ -5,20 +5,25 @@
 import pandas as pd
 import os
 import logging
-
-from tqdm import tqdm
-from sklearn.model_selection import train_test_split
+from datetime import datetime
 from scripts.train_config import raw_data_path, big_data_dir
 from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir
-from src.config import regression_label, submission_cols, offline_feature_path
-from src.utils.memory_utils import reduce_mem_usage
+from src.config import offline_feature_path, log_dir
 from src.utils import check_create_dir
-# from src.FeatureCreator.ItemFeatureCreatorV2 import ItemFeatureCreatorV2
 
 # =============== Config ============
-logging.basicConfig(level='INFO',
+# =============== Config ============
+curDT = datetime.now()
+date_time = curDT.strftime("%m%d%H")
+current_file = os.path.basename(__file__).split('.')[0]
+log_file = '_'.join([dir_mark, current_file, date_time, '.log'])
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',)
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    # filename=os.path.join(log_dir, log_file)
+                    )
+# console = logging.StreamHandler()
+# logging.getLogger().addHandler(console)
 
 
 # target_col = train_config_detail[dir_mark]['target_col']
@@ -44,21 +49,24 @@ target_raw_data_dir = os.path.join(raw_data_path, dir_mark)
 check_create_dir(target_raw_data_dir)
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
-logging.info(f"Reading data from {data_dir}")
-train_df = pd.read_pickle(os.path.join(data_dir, 'train.pkl'))
+print(f"Reading data from {data_dir}")
+train_df = pd.read_pickle(os.path.join(big_data_dir, 'train.pkl'))
 test_df = pd.read_pickle(os.path.join(big_data_dir, 'test.pkl'))
+
+print(f"train_df: {train_df.shape}; test_df: {test_df.shape}")
 
 if debug:
     train_df = train_df.sample(debug_num)
     test_df = test_df.sample(debug_num)
 
-logging.info(f"train_df: {train_df.shape}; test_df: {test_df.shape}")
+print(f"train_df: {train_df.shape}; test_df: {test_df.shape}")
 logging.info(f"Creating features")
 
 
 if debug:
-    offline_feature_path = 'data/offline_features/'
+    offline_feature_path = 'data/offline_features/debug'
 
+print(f"Saving offline feature to {offline_feature_path}")
 fc = item_feature_creator(train_df=train_df, test_df=test_df, feature_path=offline_feature_path)
 
 item_features, dest_features = fc.get_features()

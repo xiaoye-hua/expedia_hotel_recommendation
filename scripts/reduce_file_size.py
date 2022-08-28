@@ -3,12 +3,12 @@
 # @Author  : Hua Guo
 # @Disc    :
 import pandas as pd
-import numpy as np
 import os
 from src.utils import check_create_dir
 
 from src.utils.memory_utils import reduce_mem_usage
 from scripts.train_config import big_data_dir, small_data_dir
+
 train_path = 'raw_data/train.csv'
 test_path = 'raw_data/test.csv'
 print(f"Reading data from {train_path}; {test_path}")

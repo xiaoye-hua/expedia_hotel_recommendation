@@ -55,7 +55,7 @@ feature_cols = dense_features + sparse_features
 check_create_dir(target_raw_data_dir)
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
-logging.info(f"Reading data from {data_dir}")
+print(f"Reading data from {data_dir}")
 all_df = pd.read_pickle(os.path.join(base_dir, data_dir, 'train.pkl'))
 test_df = pd.read_pickle(os.path.join(base_dir, big_data_dir, 'test.pkl'))
 
@@ -63,16 +63,16 @@ if debug:
     all_df = all_df.sample(debug_num)
 
 
-# logging.info(f"Creating item features")
+# print(f"Creating item features")
 # fc = item_feature_creator(train_df=all_df, test_df=test_df, feature_path=target_raw_data_dir)
 # item_features, dest_features = fc.get_features()
-# logging.info(f"Item features: {item_features.columns}")
+# print(f"Item features: {item_features.columns}")
 
-# logging.info(item_features.head())
+# print(item_features.head())
 # fc.save_features()
 
 item_feature = item_feature_creator(feature_path=offline_feature_path)
-logging.info(f"Data shape: {all_df.shape}; Creating all Features...")
+print(f"Data shape: {all_df.shape}; Creating all Features...")
 fc = feature_creator_class(feature_cols=dense_features+sparse_features,
                            item_feature_class=item_feature)
 
@@ -92,7 +92,7 @@ assert len(train_srch_id)+len(eval_srch_id)+len(test_srch_id) == len(search_id_d
 
 srch_id_dfs = [train_srch_id, eval_srch_id, test_srch_id]
 file_names = ['train_df', 'eval_df', 'test_df']
-logging.info(f"Saving file to {target_raw_data_dir}")
+print(f"Saving file to {target_raw_data_dir}")
 for srch_id_df, file_name in tqdm(zip(srch_id_dfs, file_names)):
     df = srch_id_df.merge(train_eval, how='left', on='srch_id')
     print(df.shape)
