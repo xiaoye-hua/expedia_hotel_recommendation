@@ -79,7 +79,10 @@ eval_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'eval_df.pkl'))
 test_df = pd.read_pickle(os.path.join(target_raw_data_dir, 'test_df.pkl'))
 
 
-
+if feature_clean_func is not None:
+    train_df = feature_clean_func(df=train_df)
+    eval_df = feature_clean_func(df=eval_df)
+    test_df = feature_clean_func(df=test_df)
 
 
 if no_test:
@@ -213,7 +216,7 @@ def get_res(train_df, eval_df, test_df, target_position=1):
     train_ndcg = get_ndcg(train_df)
     eval_ndcg = get_ndcg(eval_df)
     test_ndcg = get_ndcg(test_df)
-    print(f"{train_df.shape}; {eval_df.shape}; {test_df.shape}")
+    print(f"{train_df[feature_cols].shape}; {eval_df[feature_cols].shape}; {test_df[feature_cols].shape}")
     print(f"{train_ndcg}; {eval_ndcg}; {test_ndcg}")
 
 

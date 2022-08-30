@@ -50,12 +50,15 @@ item_feature_creator = train_config_detail[dir_mark].get('item_feature_creator',
 
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
-print(f"Reading data from {data_dir}")
+print(f"Reading data from {big_data_dir}")
 
 test_df = pd.read_pickle(os.path.join(big_data_dir, 'test.pkl'))
 
 if debug:
     test_df = test_df.sample(debug_num)
+
+if feature_clean_func is not None:
+    test_df = feature_clean_func(df=test_df)
 
 print(f"    All Features...")
 item_feature = item_feature_creator(feature_path=offline_feature_path)
