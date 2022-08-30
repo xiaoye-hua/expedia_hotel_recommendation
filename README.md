@@ -1,6 +1,7 @@
-# expedia_hotel_recommendation
+# [Personalize Expedia Hotel Searches - ICDM 2013](https://www.kaggle.com/competitions/expedia-personalized-sort/overview)
 
-## Run the code
+
+## How to Run the Code
 
 ```shell
 pip install jupyter
@@ -8,7 +9,6 @@ pip install ipykernel
 python -m ipykernel install --user --name expedia_project --display-name "Python3.8(expedia_project)"
 
 export PYTHONPATH=./:PYTHONPATH
-
 
 # 1. reduce file size; 2. save data to pkl; 3. save big_data & small_data version of training data
 python3 scripts/reduce_file_size.py
@@ -22,6 +22,7 @@ python3 scripts/model_train.py
 python3 model_predict.py
 
 ```
-## TODO 
-1. [ ] feature_cols should be the same for both training, eval and predict: 
-    1. feature_cols = dense_features + sparse_features
+
+# Ref 
+
+1. [Slides from Top5 Solutions](report/2013_ICDM_expedia_hotel_rank)
