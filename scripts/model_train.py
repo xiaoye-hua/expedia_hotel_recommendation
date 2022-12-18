@@ -15,6 +15,7 @@ from src.config import regression_label, submission_cols, position_feature_path
 from scripts.train_config import no_test
 from src.Evaluation import get_ndcg
 from src.config import log_dir
+from src.DataProfiling import DataProfiling
 
 # =============== Config ============
 curDT = datetime.now()
@@ -29,8 +30,9 @@ logging.basicConfig(level='INFO',
 console = logging.StreamHandler()
 logging.getLogger().addHandler(console)
 
-
+data_profiling = True
 # target_col = train_config_detail[dir_mark]['target_col']
+target_col = regression_label
 pipeline_class = train_config_detail[dir_mark]['pipeline_class']
 feature_creator_class = train_config_detail[dir_mark]['feature_creator']
 model_params = train_config_detail[dir_mark].get('model_params', {})
@@ -50,9 +52,6 @@ task = train_config_detail[dir_mark].get('task', None) # params for deepFM
 fillna = train_config_detail[dir_mark].get('fillna', False)
 
 
-# if position_feature_included:
-#     assert position_feature_cols is not None
-#     position_df = pd.read_csv(position_feature_path)
 additional_train_params = train_config_detail[dir_mark].get('additional_train_params', {})
 
 model_path = os.path.join(model_dir, dir_mark)
@@ -177,6 +176,15 @@ train_params = {
 #
 # }
 
+
+if data_profiling:
+    profile_cols = feature_cols + [regression_label]
+    profile_tool = DataProfiling(data_dir=os.path.join(model_path, 'profiling'))
+    train_profile = profile_tool.profiling_save(df=train_df[profile_cols], file_name='train.html')
+    test_profile = profile_tool.profiling_save(df=test_df[profile_cols], file_name='test.html')
+    eval_profile = profile_tool.profiling_save(df=eval_df[profile_cols], file_name='eval.html')
+    # profile_tool.compare_save(profile1=train_profile, profile2=test_profile, file_name='compare_train_test.html')
+    # profile_tool.compare_save(profile1=train_profile, profile2=eval_profile, file_name='compare_train_eval.html')
 print(feature_cols)
 print(f"Model training...")
 pipeline = pipeline_class(model_path=model_path, model_training=True, model_params=model_params, task=task)
@@ -192,15 +200,15 @@ if not no_test:
 print(f"Model saving to {model_path}..")
 pipeline.save_pipeline()
 
-
-def change_position_features(df, target_position=1):
-    df = df.drop(position_feature_cols, axis=1)
-    df.loc[:, 'position'] = target_position
-    # df = df.merge(position_df, how='left', on='position')
-    return df
-
+# position_feature_included = Fa
 def get_res(train_df, eval_df, test_df, target_position=1):
-    if position_feature_included:
+    def change_position_features(df, target_position=1):
+        df = df.drop(position_feature_cols, axis=1)
+        df.loc[:, 'position'] = target_position
+        # df = df.merge(position_df, how='left', on='position')
+        return df
+    if target_position is not None:
+        logging.info(f"Changing position feature to {target_position}")
         eval_df = change_position_features(eval_df, target_position=target_position)
         train_df = change_position_features(train_df, target_position=target_position)
         test_df = change_position_features(test_df, target_position=target_position)
@@ -208,11 +216,13 @@ def get_res(train_df, eval_df, test_df, target_position=1):
         for df in [eval_df, train_df, test_df]:
             print(pd.unique(df['position']))
             assert len(pd.unique(df['position'])) == 1
-
-
+    else:
+        logging.info(f"Without changing position feature")
     eval_df['predicted'] = pipeline.predict(eval_df[feature_cols])
     train_df['predicted'] = pipeline.predict(train_df[feature_cols])
     test_df['predicted'] = pipeline.predict(test_df[feature_cols])
+    print(f"{train_df['predicted'].mean()}; {eval_df['predicted'].mean()}; {test_df['predicted'].mean()}")
+
     train_ndcg = get_ndcg(train_df)
     eval_ndcg = get_ndcg(eval_df)
     test_ndcg = get_ndcg(test_df)
@@ -220,10 +230,35 @@ def get_res(train_df, eval_df, test_df, target_position=1):
     print(f"{train_ndcg}; {eval_ndcg}; {test_ndcg}")
 
 
+get_res(train_df=train_df, eval_df=eval_df, test_df=test_df, target_position=None)
 if position_feature_included:
-    for position in range(1, 25):
+    for position in range(1, 3):
         print(f"position: {position}")
         get_res(train_df=train_df, eval_df=eval_df, test_df=test_df, target_position=position)
-else:
-    get_res(train_df=train_df, eval_df=eval_df, test_df=test_df, target_position=None)
 
+
+print('#'*10)
+print('search list where previous method performed badly')
+print('*'*10)
+
+def get_poor_df(df):
+    test_df = df.copy()
+    max_label_df = test_df.groupby('srch_id')['label'].max().reset_index().rename(columns={'label': 'max_label'})
+    current_label_df = test_df[test_df['position']==1][['srch_id', 'label']].rename(columns={'label': 'current_label'})
+    merged_df = current_label_df.merge(max_label_df, how='left', on='srch_id')
+    poor_srch_df = merged_df[merged_df['current_label']!=merged_df['max_label']]#.shape
+    poor_srch_id = poor_srch_df['srch_id'].unique()
+    poor_df = test_df[test_df['srch_id'].isin(poor_srch_id)]
+    print(f"Item number: previous: {test_df.shape}; current: {poor_df.shape}")
+    print(f"search list number: Previous: {len(test_df['srch_id'].unique())}; current: {len(poor_df['srch_id'].unique())}")
+    return poor_df
+
+poor_train = get_poor_df(df=train_df)
+poor_eval = get_poor_df(df=eval_df)
+poor_test = get_poor_df(df=test_df)
+
+get_res(train_df=poor_train, eval_df=poor_eval, test_df=poor_test, target_position=None)
+if position_feature_included:
+    for position in range(1, 3):
+        print(f"position: {position}")
+        get_res(train_df=poor_train, eval_df=poor_eval, test_df=poor_test, target_position=position)

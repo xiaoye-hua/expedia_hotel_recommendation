@@ -23,7 +23,7 @@ from src.Pipeline.RidgeReg import RidgeReg
 from src.FeatureCreator.utils import map_categorical
 
 # dir_mark = '0603_lgbmranker_v2'
-dir_mark = '0828_ridge_v5'
+dir_mark = '0828_ridge_v2'
 debug = False
 big_data = False
 debug_num = 1000
@@ -513,27 +513,6 @@ train_config_detail = {
             , 'prop_brand_bool'
             , 'promotion_flag'
             , 'srch_saturday_night_bool'
-            , 'random_bool'
-            , 'comp1_rate'
-            , 'comp1_inv'
-            , 'comp2_rate'
-            , 'comp2_inv'
-            , 'comp3_rate'
-            , 'comp3_inv'
-            , 'comp4_rate'
-            , 'comp4_inv'
-            , 'comp5_rate'
-            , 'comp5_inv'
-            , 'comp6_rate'
-            , 'comp6_inv'
-            , 'comp7_rate'
-            , 'comp7_inv'
-            , 'comp8_rate'
-            , 'comp8_inv'
-            # new feature
-            , 'month'
-            , 'hour'
-            , 'dayofweek'
             , 'position'
         ]
         , 'dense_features': [
@@ -560,71 +539,7 @@ train_config_detail = {
             , 'comp6_rate_percent_diff'
             , 'comp7_rate_percent_diff'
             , 'comp8_rate_percent_diff'
-            # item features
-            , 'prop_id_size', 'prop_id_mean_visitor_hist_starrating',
-            'prop_id_std_visitor_hist_starrating',
-            'prop_id_median_visitor_hist_starrating',
-            'prop_id_mean_visitor_hist_adr_usd', 'prop_id_std_visitor_hist_adr_usd',
-            'prop_id_median_visitor_hist_adr_usd', 'prop_id_mean_prop_starrating',
-            'prop_id_std_prop_starrating', 'prop_id_median_prop_starrating',
-            'prop_id_mean_prop_review_score', 'prop_id_std_prop_review_score',
-            'prop_id_median_prop_review_score', 'prop_id_mean_prop_location_score1',
-            'prop_id_std_prop_location_score1',
-            'prop_id_median_prop_location_score1',
-            'prop_id_mean_prop_location_score2', 'prop_id_std_prop_location_score2',
-            'prop_id_median_prop_location_score2',
-            'prop_id_mean_prop_log_historical_price',
-            'prop_id_std_prop_log_historical_price',
-            'prop_id_median_prop_log_historical_price', 'prop_id_mean_price_usd',
-            'prop_id_std_price_usd', 'prop_id_median_price_usd',
-            'prop_id_mean_srch_length_of_stay', 'prop_id_std_srch_length_of_stay',
-            'prop_id_median_srch_length_of_stay',
-            'prop_id_mean_srch_booking_window', 'prop_id_std_srch_booking_window',
-            'prop_id_median_srch_booking_window', 'prop_id_mean_srch_adults_count',
-            'prop_id_std_srch_adults_count', 'prop_id_median_srch_adults_count',
-            'prop_id_mean_srch_children_count', 'prop_id_std_srch_children_count',
-            'prop_id_median_srch_children_count', 'prop_id_mean_srch_room_count',
-            'prop_id_std_srch_room_count', 'prop_id_median_srch_room_count',
-            'prop_id_mean_srch_query_affinity_score',
-            'prop_id_std_srch_query_affinity_score',
-            'prop_id_median_srch_query_affinity_score',
-            'prop_id_mean_orig_destination_distance',
-            'prop_id_std_orig_destination_distance',
-            'prop_id_median_orig_destination_distance',
-            'prop_id_mean_comp1_rate_percent_diff',
-            'prop_id_std_comp1_rate_percent_diff',
-            'prop_id_median_comp1_rate_percent_diff',
-            'prop_id_mean_comp2_rate_percent_diff',
-            'prop_id_std_comp2_rate_percent_diff',
-            'prop_id_median_comp2_rate_percent_diff',
-            'prop_id_mean_comp3_rate_percent_diff',
-            'prop_id_std_comp3_rate_percent_diff',
-            'prop_id_median_comp3_rate_percent_diff',
-            'prop_id_mean_comp4_rate_percent_diff',
-            'prop_id_std_comp4_rate_percent_diff',
-            'prop_id_median_comp4_rate_percent_diff',
-            'prop_id_mean_comp5_rate_percent_diff',
-            'prop_id_std_comp5_rate_percent_diff',
-            'prop_id_median_comp5_rate_percent_diff',
-            'prop_id_mean_comp6_rate_percent_diff',
-            'prop_id_std_comp6_rate_percent_diff',
-            'prop_id_median_comp6_rate_percent_diff',
-            'prop_id_mean_comp7_rate_percent_diff',
-            'prop_id_std_comp7_rate_percent_diff',
-            'prop_id_median_comp7_rate_percent_diff',
-            'prop_id_mean_comp8_rate_percent_diff',
-            'prop_id_std_comp8_rate_percent_diff',
-            'prop_id_median_comp8_rate_percent_diff'
-            , 'price_usd_percentile'
-            , 'price_usd_rank_percentile'
-            , 'prop_starrating_percentile'
-            , 'prop_starrating_rank_percentile'
-            , 'prop_review_score_percentile'
-            , 'prop_review_score_rank_percentile'
-            # position feature
-            # , 'position_ctr', 'position_ctcvr', 'position_reg_label', 'position_cnt'
         ]
-        # , 'feature_clean_func': clean_feature
         , 'data_dir_mark': '0503_lgbmranker_v2'
     },
 
@@ -655,28 +570,6 @@ train_config_detail = {
             , 'prop_brand_bool'
             , 'promotion_flag'
             , 'srch_saturday_night_bool'
-            , 'random_bool'
-            , 'comp1_rate'
-            , 'comp1_inv'
-            , 'comp2_rate'
-            , 'comp2_inv'
-            , 'comp3_rate'
-            , 'comp3_inv'
-            , 'comp4_rate'
-            , 'comp4_inv'
-            , 'comp5_rate'
-            , 'comp5_inv'
-            , 'comp6_rate'
-            , 'comp6_inv'
-            , 'comp7_rate'
-            , 'comp7_inv'
-            , 'comp8_rate'
-            , 'comp8_inv'
-            # new feature
-            , 'month'
-            , 'hour'
-            , 'dayofweek'
-            # , 'position'
         ]
         , 'dense_features': [
             'visitor_hist_starrating'
@@ -702,71 +595,7 @@ train_config_detail = {
             , 'comp6_rate_percent_diff'
             , 'comp7_rate_percent_diff'
             , 'comp8_rate_percent_diff'
-            # item features
-            , 'prop_id_size', 'prop_id_mean_visitor_hist_starrating',
-            'prop_id_std_visitor_hist_starrating',
-            'prop_id_median_visitor_hist_starrating',
-            'prop_id_mean_visitor_hist_adr_usd', 'prop_id_std_visitor_hist_adr_usd',
-            'prop_id_median_visitor_hist_adr_usd', 'prop_id_mean_prop_starrating',
-            'prop_id_std_prop_starrating', 'prop_id_median_prop_starrating',
-            'prop_id_mean_prop_review_score', 'prop_id_std_prop_review_score',
-            'prop_id_median_prop_review_score', 'prop_id_mean_prop_location_score1',
-            'prop_id_std_prop_location_score1',
-            'prop_id_median_prop_location_score1',
-            'prop_id_mean_prop_location_score2', 'prop_id_std_prop_location_score2',
-            'prop_id_median_prop_location_score2',
-            'prop_id_mean_prop_log_historical_price',
-            'prop_id_std_prop_log_historical_price',
-            'prop_id_median_prop_log_historical_price', 'prop_id_mean_price_usd',
-            'prop_id_std_price_usd', 'prop_id_median_price_usd',
-            'prop_id_mean_srch_length_of_stay', 'prop_id_std_srch_length_of_stay',
-            'prop_id_median_srch_length_of_stay',
-            'prop_id_mean_srch_booking_window', 'prop_id_std_srch_booking_window',
-            'prop_id_median_srch_booking_window', 'prop_id_mean_srch_adults_count',
-            'prop_id_std_srch_adults_count', 'prop_id_median_srch_adults_count',
-            'prop_id_mean_srch_children_count', 'prop_id_std_srch_children_count',
-            'prop_id_median_srch_children_count', 'prop_id_mean_srch_room_count',
-            'prop_id_std_srch_room_count', 'prop_id_median_srch_room_count',
-            'prop_id_mean_srch_query_affinity_score',
-            'prop_id_std_srch_query_affinity_score',
-            'prop_id_median_srch_query_affinity_score',
-            'prop_id_mean_orig_destination_distance',
-            'prop_id_std_orig_destination_distance',
-            'prop_id_median_orig_destination_distance',
-            'prop_id_mean_comp1_rate_percent_diff',
-            'prop_id_std_comp1_rate_percent_diff',
-            'prop_id_median_comp1_rate_percent_diff',
-            'prop_id_mean_comp2_rate_percent_diff',
-            'prop_id_std_comp2_rate_percent_diff',
-            'prop_id_median_comp2_rate_percent_diff',
-            'prop_id_mean_comp3_rate_percent_diff',
-            'prop_id_std_comp3_rate_percent_diff',
-            'prop_id_median_comp3_rate_percent_diff',
-            'prop_id_mean_comp4_rate_percent_diff',
-            'prop_id_std_comp4_rate_percent_diff',
-            'prop_id_median_comp4_rate_percent_diff',
-            'prop_id_mean_comp5_rate_percent_diff',
-            'prop_id_std_comp5_rate_percent_diff',
-            'prop_id_median_comp5_rate_percent_diff',
-            'prop_id_mean_comp6_rate_percent_diff',
-            'prop_id_std_comp6_rate_percent_diff',
-            'prop_id_median_comp6_rate_percent_diff',
-            'prop_id_mean_comp7_rate_percent_diff',
-            'prop_id_std_comp7_rate_percent_diff',
-            'prop_id_median_comp7_rate_percent_diff',
-            'prop_id_mean_comp8_rate_percent_diff',
-            'prop_id_std_comp8_rate_percent_diff',
-            'prop_id_median_comp8_rate_percent_diff'
-            , 'price_usd_percentile'
-            , 'price_usd_rank_percentile'
-            , 'prop_starrating_percentile'
-            , 'prop_starrating_rank_percentile'
-            , 'prop_review_score_percentile'
-            , 'prop_review_score_rank_percentile'
-            # position feature
-            # , 'position_ctr', 'position_ctcvr', 'position_reg_label', 'position_cnt'
         ]
-        # , 'feature_clean_func': clean_feature
         , 'data_dir_mark': '0503_lgbmranker_v2'
     },
 
