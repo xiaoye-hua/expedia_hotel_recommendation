@@ -30,7 +30,7 @@ logging.basicConfig(level='INFO',
 console = logging.StreamHandler()
 logging.getLogger().addHandler(console)
 
-data_profiling = True
+data_profiling = False
 # target_col = train_config_detail[dir_mark]['target_col']
 target_col = regression_label
 pipeline_class = train_config_detail[dir_mark]['pipeline_class']

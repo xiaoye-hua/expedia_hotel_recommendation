@@ -33,6 +33,12 @@
     2. [ ] With original position feature, most of the uplift comes from search lists where previous version perfomed good???
 
 
+### Experiment 20230313
+1. Goal: add expected_position in 0503_lgbmranker_v2
+2. Setting: 
+3. Conclustion & TODO 
+
+
 ## Refer 
 1. [model log excell](../model_log.xlsx)
 2. [submission log in Kaggle](https://www.kaggle.com/competitions/expedia-personalized-sort/submissions)

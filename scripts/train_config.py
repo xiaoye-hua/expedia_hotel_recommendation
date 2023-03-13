@@ -23,7 +23,7 @@ from src.Pipeline.RidgeReg import RidgeReg
 from src.FeatureCreator.utils import map_categorical
 
 # dir_mark = '0603_lgbmranker_v2'
-dir_mark = '0828_ridge_v2'
+dir_mark = '0503_lgbmranker_v2'
 debug = False
 big_data = False
 debug_num = 1000
