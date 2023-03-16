@@ -10,12 +10,21 @@ from datetime import datetime
 import os
 import logging
 from sklearn.model_selection import train_test_split
-from scripts.train_config import train_config_detail, dir_mark, data_dir, debug, debug_num, model_dir, raw_data_path
+from scripts.train_config import train_config_detail, data_dir, debug, debug_num, model_dir, raw_data_path
 from src.config import regression_label, submission_cols, position_feature_path
 from scripts.train_config import no_test
 from src.Evaluation import get_ndcg
 from src.config import log_dir
 from src.DataProfiling import DataProfiling
+
+import argparse
+
+argParser = argparse.ArgumentParser()
+argParser.add_argument("-m", "--dir_mark", help="model version")
+
+args = argParser.parse_args()
+dir_mark = args.dir_mark
+
 
 # =============== Config ============
 curDT = datetime.now()
@@ -30,7 +39,7 @@ logging.basicConfig(level='INFO',
 console = logging.StreamHandler()
 logging.getLogger().addHandler(console)
 
-data_profiling = False
+data_profiling = True
 # target_col = train_config_detail[dir_mark]['target_col']
 target_col = regression_label
 pipeline_class = train_config_detail[dir_mark]['pipeline_class']
@@ -92,7 +101,16 @@ if no_test:
 else:
     df_for_encode_train = pd.concat([train_df, eval_df, test_df], axis=0)
 
-print(train_df[feature_cols].isna().sum())
+logging.info(f"Null values: {train_df[feature_cols].isna().sum()}")
+
+if data_profiling:
+    profile_cols = feature_cols + [regression_label]
+    profile_tool = DataProfiling(data_dir=os.path.join(model_path, 'profiling'))
+    train_profile = profile_tool.profiling_save(df=train_df[profile_cols], file_name='train.html')
+    test_profile = profile_tool.profiling_save(df=test_df[profile_cols], file_name='test.html')
+    eval_profile = profile_tool.profiling_save(df=eval_df[profile_cols], file_name='eval.html')
+    # profile_tool.compare_save(profile1=train_profile, profile2=test_profile, file_name='compare_train_test.html')
+    # profile_tool.compare_save(profile1=train_profile, profile2=eval_profile, file_name='compare_train_eval.html')
 if fillna:
     for col in tqdm(feature_cols):
         train_df[col] = train_df[col].fillna(df_for_encode_train[col].max())
@@ -177,14 +195,6 @@ train_params = {
 # }
 
 
-if data_profiling:
-    profile_cols = feature_cols + [regression_label]
-    profile_tool = DataProfiling(data_dir=os.path.join(model_path, 'profiling'))
-    train_profile = profile_tool.profiling_save(df=train_df[profile_cols], file_name='train.html')
-    test_profile = profile_tool.profiling_save(df=test_df[profile_cols], file_name='test.html')
-    eval_profile = profile_tool.profiling_save(df=eval_df[profile_cols], file_name='eval.html')
-    # profile_tool.compare_save(profile1=train_profile, profile2=test_profile, file_name='compare_train_test.html')
-    # profile_tool.compare_save(profile1=train_profile, profile2=eval_profile, file_name='compare_train_eval.html')
 print(feature_cols)
 print(f"Model training...")
 pipeline = pipeline_class(model_path=model_path, model_training=True, model_params=model_params, task=task)
@@ -221,7 +231,13 @@ def get_res(train_df, eval_df, test_df, target_position=1):
     eval_df['predicted'] = pipeline.predict(eval_df[feature_cols])
     train_df['predicted'] = pipeline.predict(train_df[feature_cols])
     test_df['predicted'] = pipeline.predict(test_df[feature_cols])
-    print(f"{train_df['predicted'].mean()}; {eval_df['predicted'].mean()}; {test_df['predicted'].mean()}")
+    from sklearn.metrics import mean_squared_error
+
+    def get_mse(df):
+        mse = mean_squared_error(y_true=df[regression_label], y_pred=df['predicted'])
+        return mse
+    logging.info("Mean Square Error:")
+    logging.info(f"{get_mse(train_df)}; {get_mse(eval_df)}; {get_mse(test_df)}")
 
     train_ndcg = get_ndcg(train_df)
     eval_ndcg = get_ndcg(eval_df)

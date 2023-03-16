@@ -31,6 +31,7 @@ class DeepFMDataProcess(BaseEstimator, TransformerMixin):
                 ("cat", categorical_transformer, self.sparse_feature),
                 ("num", numeric_transformer, self.dense_feature),
             ]
+            , remainder='passthrough'
         )
         logging.info(self.pipeline)
         self.pipeline.fit(X)

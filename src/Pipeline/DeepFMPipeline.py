@@ -58,8 +58,13 @@ class DeepFMPipeline(BaseDNNPipeline):
         self.dense_features = train_params['dense_features']
         self.sparse_features = train_params['sparse_features']
 
-        self.pipeline = DeepFMDataProcess(dense_feature=self.dense_features, sparse_feature=self.sparse_features
-                                          , dense_to_sparse=dense_to_sparse)
+        self.pipeline = DeepFMDataProcess(
+            # dense_feature=self.dense_features,
+                                          # sparse_feature=self.sparse_features
+                                        dense_feature=[],
+                                          sparse_feature=[]
+                                          , dense_to_sparse=dense_to_sparse
+                                         )
         logging.info(self.pipeline)
 
         df_for_encode_train = self.pipeline.fit_transform(df_for_encode_train)
@@ -99,7 +104,10 @@ class DeepFMPipeline(BaseDNNPipeline):
                         batch_size=batch_size,
                        epochs=epoches,
                        validation_data=(eval_model_input, eval_label)
-                       )
+                       , callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=4)])
+        dot_img_file = os.path.join(self.model_path, 'model_structure.png')
+        logging.info(f'Saving model to {dot_img_file}')
+        tf.keras.utils.plot_model(self.model, to_file=dot_img_file, show_shapes=True)
 
     def _process_train_data(self, X):
         train_model_input = {}
