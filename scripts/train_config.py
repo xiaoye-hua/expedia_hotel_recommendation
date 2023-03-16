@@ -61,7 +61,7 @@ train_config_detail = {
         , 'feature_creator': FeatureCreatorV3
         , 'item_feature_creator': ItemFeatureCreator
         , 'task': 'regression'
-        , 'epochs': 100
+        , 'epochs': 300
         , 'batch_size': 6400
         , 'dense_to_sparse': True
         , 'fillna':True
@@ -70,12 +70,14 @@ train_config_detail = {
             'site_id'
             , 'prop_country_id'
             , 'srch_destination_id'
-            # , 'prop_id'
+            , 'prop_id'
 
         ]
         , 'dense_features': [
-            # 'visitor_hist_starrating'
-            # , 'visitor_hist_adr_usd'
+            'prop_location_score2'
+            , 'price_usd_rank_percentile'
+            , 'price_usd'
+            , 'prop_location_score1'
         ]
         , 'data_dir_mark': '0503_lgbmranker_v2'
     },
@@ -91,11 +93,14 @@ train_config_detail = {
             'site_id'
             , 'prop_country_id'
             , 'srch_destination_id'
+            , 'prop_id'
 
         ]
         , 'dense_features': [
-            # 'visitor_hist_starrating'
-            # , 'visitor_hist_adr_usd'
+            'prop_location_score2'
+            , 'price_usd_rank_percentile'
+            , 'price_usd'
+            , 'prop_location_score1'
         ]
         , 'data_dir_mark': '0503_lgbmranker_v2'
     },

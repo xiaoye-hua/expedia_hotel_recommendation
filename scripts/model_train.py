@@ -21,10 +21,11 @@ import argparse
 
 argParser = argparse.ArgumentParser()
 argParser.add_argument("-m", "--dir_mark", help="model version")
+argParser.add_argument("-p", "--data_profiling", default=False)
 
 args = argParser.parse_args()
 dir_mark = args.dir_mark
-
+data_profiling = args.data_profiling
 
 # =============== Config ============
 curDT = datetime.now()
@@ -39,7 +40,6 @@ logging.basicConfig(level='INFO',
 console = logging.StreamHandler()
 logging.getLogger().addHandler(console)
 
-data_profiling = True
 # target_col = train_config_detail[dir_mark]['target_col']
 target_col = regression_label
 pipeline_class = train_config_detail[dir_mark]['pipeline_class']
@@ -113,9 +113,9 @@ if data_profiling:
     # profile_tool.compare_save(profile1=train_profile, profile2=eval_profile, file_name='compare_train_eval.html')
 if fillna:
     for col in tqdm(feature_cols):
-        train_df[col] = train_df[col].fillna(df_for_encode_train[col].max())
-        test_df[col] = test_df[col].fillna(df_for_encode_train[col].max())
-        eval_df[col] = eval_df[col].fillna(df_for_encode_train[col].max())
+        train_df[col] = train_df[col].fillna(df_for_encode_train[col].min())
+        test_df[col] = test_df[col].fillna(df_for_encode_train[col].min())
+        eval_df[col] = eval_df[col].fillna(df_for_encode_train[col].min())
 print(train_df[feature_cols].isna().sum())
 df_for_encode_train = pd.concat([train_df, eval_df, test_df], axis=0)
 

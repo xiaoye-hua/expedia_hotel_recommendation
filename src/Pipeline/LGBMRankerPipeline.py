@@ -88,7 +88,7 @@ class LGBMRankerPipeline(BasePipeline):
         #     self.model_params = self.grid_search_parms(X=train_X, y=train_y, parameters=grid_search_dict)
         #     end = time.time()
         #     logging.info(f"Time consumed: {round((end-begin)/60, 3)}mins")
-
+        self.model_params['importance_type'] = 'gain'
         self.xgb = LGBMRanker(**self.model_params)
         if train_valid:
             eval_X = test_X.copy()

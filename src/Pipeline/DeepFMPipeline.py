@@ -60,15 +60,15 @@ class DeepFMPipeline(BaseDNNPipeline):
 
         self.pipeline = DeepFMDataProcess(
             # dense_feature=self.dense_features,
-                                          # sparse_feature=self.sparse_features
-                                        dense_feature=[],
-                                          sparse_feature=[]
+                                          sparse_feature=self.sparse_features
+                                        , dense_feature=[]
+                                          # sparse_feature=[]
                                           , dense_to_sparse=dense_to_sparse
                                          )
         logging.info(self.pipeline)
 
         df_for_encode_train = self.pipeline.fit_transform(df_for_encode_train)
-        fixlen_feature_columns = [SparseFeat(feat, vocabulary_size=df_for_encode_train[feat].max() + 1, embedding_dim=4)
+        fixlen_feature_columns = [SparseFeat(feat, vocabulary_size=df_for_encode_train[feat].max() + 1, embedding_dim=15)
                                   for i, feat in enumerate(self.sparse_features)] + [DenseFeat(feat, 1, )
                                                                                 for feat in self.dense_features]
         dnn_feature_columns = fixlen_feature_columns
