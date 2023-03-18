@@ -61,7 +61,7 @@ class DeepFMPipeline(BaseDNNPipeline):
         self.pipeline = DeepFMDataProcess(
             # dense_feature=self.dense_features,
                                           sparse_feature=self.sparse_features
-                                        , dense_feature=[]
+                                        , dense_feature=self.dense_features
                                           # sparse_feature=[]
                                           , dense_to_sparse=dense_to_sparse
                                          )
@@ -93,7 +93,9 @@ class DeepFMPipeline(BaseDNNPipeline):
                                          ],
                                )
         elif self.task == 'regression':
-            self.model.compile(optimizer="adam",
+            self.model.compile(optimizer='adam',
+                               # learning_rate=0.0001, 
+                               # tf.keras.optimizers.experimental.Adam(learning_rate=0.0001),
                                loss=tf.keras.losses.MeanSquaredError(),
                                 # metrics=[tf.keras.losses.MeanSquaredError()],
                                )
@@ -104,7 +106,7 @@ class DeepFMPipeline(BaseDNNPipeline):
                         batch_size=batch_size,
                        epochs=epoches,
                        validation_data=(eval_model_input, eval_label)
-                       , callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=4)])
+                       , callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)])
         dot_img_file = os.path.join(self.model_path, 'model_structure.png')
         logging.info(f'Saving model to {dot_img_file}')
         tf.keras.utils.plot_model(self.model, to_file=dot_img_file, show_shapes=True)

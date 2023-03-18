@@ -22,7 +22,7 @@ class DeepFMDataProcess(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
         if self.dense_to_sparse:
-            numeric_transformer = KBinsDiscretizer(n_bins=20, encode='ordinal')
+            numeric_transformer = KBinsDiscretizer(n_bins=40, encode='ordinal')
         else:
             numeric_transformer = MinMaxScaler(feature_range=(0, 1))
         categorical_transformer = OrdinalEncoder(dtype=np.int32)

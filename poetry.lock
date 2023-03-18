@@ -2598,14 +2598,14 @@ scikit-learn = ["scikit-learn"]
 
 [[package]]
 name = "ydata-profiling"
-version = "4.1.0"
+version = "4.1.1"
 description = "Generate profile report for pandas DataFrame"
 category = "main"
 optional = false
 python-versions = ">=3.7, <3.12"
 files = [
-    {file = "ydata-profiling-4.1.0.tar.gz", hash = "sha256:bec333c77dd4dee9b5a86dce4f8d2bd83731190ee1109dcd401466082fdd60b4"},
-    {file = "ydata_profiling-4.1.0-py2.py3-none-any.whl", hash = "sha256:de7ee4e4a390a964aa476e3b9b114deaa5654c7885ae0d24fc178f9477dc1c7a"},
+    {file = "ydata-profiling-4.1.1.tar.gz", hash = "sha256:ff8f8cb41f86485b4a6d7bff32ff5ada747b1644f2b20bc5dd05cc616d1aef2e"},
+    {file = "ydata_profiling-4.1.1-py2.py3-none-any.whl", hash = "sha256:65d62b7d5bc1b4bac3c0122fb07c275796742739ba2c0cd2b2aceddd0ef413eb"},
 ]
 
 [package.dependencies]

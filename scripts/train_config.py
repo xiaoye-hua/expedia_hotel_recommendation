@@ -56,14 +56,14 @@ result_dir = 'result/'
 
 
 train_config_detail = {
-        "0515_deepFM_reg_v1": {  # based on 0503_lgbmranker_v2
+    "0515_deepFM_reg_v1": {  # based on 0503_lgbmranker_v2
         "pipeline_class": DeepFMPipeline
         , 'feature_creator': FeatureCreatorV3
         , 'item_feature_creator': ItemFeatureCreator
         , 'task': 'regression'
         , 'epochs': 300
         , 'batch_size': 6400
-        , 'dense_to_sparse': True
+        , 'dense_to_sparse': False
         , 'fillna':True
         , 'train_valid': True
         , 'sparse_features': [
@@ -75,8 +75,8 @@ train_config_detail = {
         ]
         , 'dense_features': [
             'prop_location_score2'
-            , 'price_usd_rank_percentile'
-            , 'price_usd'
+            ,'price_usd_rank_percentile'
+            # , 'price_usd'
             , 'prop_location_score1'
         ]
         , 'data_dir_mark': '0503_lgbmranker_v2'
@@ -98,8 +98,8 @@ train_config_detail = {
         ]
         , 'dense_features': [
             'prop_location_score2'
-            , 'price_usd_rank_percentile'
-            , 'price_usd'
+            ,'price_usd_rank_percentile'
+            # , 'price_usd'
             , 'prop_location_score1'
         ]
         , 'data_dir_mark': '0503_lgbmranker_v2'
